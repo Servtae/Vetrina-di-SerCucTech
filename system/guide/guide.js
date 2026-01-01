@@ -110,7 +110,7 @@ function guideOff(){ try{ return localStorage.getItem("SCT_GUIDE_OFF")==="1"; }c
       bIntro.onclick = async () => {
         try{
           const lang = getLang();
-          const intro = await loadJSON("/system/guide/intro.json");
+          const intro = await loadJSON("system/guide/intro.json");
           const lvl = localStorage.getItem(LS.level) || "basic";
           const t = (intro[lang] && intro[lang][lvl]) || (intro["en"] && intro["en"][lvl]) || "";
           setStatus("intro");
@@ -167,7 +167,7 @@ function guideOff(){ try{ return localStorage.getItem("SCT_GUIDE_OFF")==="1"; }c
     };
 
     const hook = async () => {
-      try{ targets = await loadJSON("/system/guide/targets.json"); }catch(e){ targets=null; }
+      try{ targets = await loadJSON("system/guide/targets.json"); }catch(e){ targets=null; }
 
       const tappable = document.querySelectorAll("[data-guide], .sc-tile, a, button");
       tappable.forEach(el => {
@@ -228,8 +228,8 @@ function guideOff(){ try{ return localStorage.getItem("SCT_GUIDE_OFF")==="1"; }c
 /* === SerCucTech FIX MAPPING === */
 (async function(){
   try{
-    const map = await fetch("/system/guide/targets-map.json").then(r=>r.json());
-    const data = await fetch("/system/guide/targets.json").then(r=>r.json());
+    const map = await fetch("system/guide/targets-map.json").then(r=>r.json());
+    const data = await fetch("system/guide/targets.json").then(r=>r.json());
 
     Object.keys(map).forEach(sel=>{
       const key = map[sel];

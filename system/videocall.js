@@ -1,7 +1,7 @@
 SCT_OK_v1
 /* SerCucTech VideoCall — Jitsi per singola vetrina */
 (() => {
-  const CONTACT_URL = "/system/contact.json";
+  const CONTACT_URL = "system/contact.json";
   const DEFAULT_BASE = "https://meet.jit.si";
 
   const isVetrina = () => /\/vetrina\.html(\?|$)/i.test(location.pathname);

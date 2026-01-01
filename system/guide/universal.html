@@ -35,7 +35,7 @@
         <div class="mut">Testo + audio (voce del dispositivo). Condivisione e download.</div>
       </div>
       <div class="row">
-        <a class="link" href="/index.html">← HUB</a>
+        <a class="link" href="index.html">← HUB</a>
         <span class="pill" id="langPill">…</span>
       </div>
     </div>
@@ -84,7 +84,7 @@ document.getElementById("langPill").textContent = "Lingua: " + LANG.toUpperCase(
 let DATA=null;
 
 async function load(){
-  const r = await fetch("/system/guide/universal.json", {cache:"no-store"});
+  const r = await fetch("system/guide/universal.json", {cache:"no-store"});
   DATA = await r.json();
   const block = DATA[LANG] || DATA["en"];
   document.getElementById("titlePill").textContent = block.title || "SerCucTech";
@@ -137,7 +137,7 @@ document.getElementById("downloadTxt").onclick=()=>{
 };
 
 document.getElementById("share").onclick=async ()=>{
-  const url = location.origin + "/system/guide/universal.html";
+  const url = location.origin + "system/guide/universal.html";
   try{
     if(navigator.share){
       await navigator.share({title:"SerCucTech • Guida Universale", text:"Guida universale SerCucTech", url});

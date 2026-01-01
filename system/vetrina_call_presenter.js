@@ -7,7 +7,7 @@ SCT_OK_v1
 (() => {
   if (!/\/vetrina\.html(\?|$)/i.test(location.pathname)) return;
 
-  const CONTACT_URL = "/system/contact.json";
+  const CONTACT_URL = "system/contact.json";
   const FALLBACK = { whatsappPhone: "+393208852858", telegramUser: "sercuctech", brand: "SerCucTech" };
 
   const qp = new URLSearchParams(location.search);
