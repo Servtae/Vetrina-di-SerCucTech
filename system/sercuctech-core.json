@@ -1,0 +1,34 @@
+{
+  "name": "SerCucTech",
+  "type": "Living Cognitive System",
+  "owner": "Sergio Cucchi",
+  "identity": "SerCucTech Language Trainer",
+  "mission": "Trasformare conoscenza in sistemi vivi, vocali, guidati, monetizzabili, accessibili a tutti.",
+  "corePrinciples": [
+    "Guida vocale automatica",
+    "Livelli culturali adattivi",
+    "Accessibilità universale",
+    "Controllo totale dell’utente",
+    "Monetizzazione etica",
+    "Sistema sempre attivo",
+    "Modularità infinita",
+    "Multilingua nativo",
+    "Sicurezza invisibile",
+    "Memoria persistente"
+  ],
+  "interactionLogic": {
+    "firstClick": "Spiega cosa puoi fare",
+    "secondClick": "Entra e guida passo-passo",
+    "voiceInput": true,
+    "autoResume": true,
+    "bookmarkSystem": true
+  },
+  "languages": ["it", "en", "ua", "de", "es", "fr", "pt"],
+  "voice": {
+    "default": "device",
+    "tts": true,
+    "stt": true
+  },
+  "levels": ["base", "medio", "esperto"],
+  "status": "ACTIVE"
+}

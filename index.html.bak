@@ -1,13 +1,9 @@
 <!doctype html>
 <html lang="it">
 <head>
-<link rel="apple-touch-icon-precomposed" href="/icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="SerCucTech Mini-PC">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152.png">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title><span id="tapSER">SerCucTech</span> <span id="tapMINI">Mini</span>-<span id="tapPC">PC</span></title>
+  <title>SerCucTech Mini-PC</title>
 
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#d4af37">
@@ -50,11 +46,6 @@
     }
 
     header{
-      position:relative;
-#tapSER,#tapMINI,#tapPC{cursor:pointer;font-weight:900}
-#tapSER:active,#tapMINI:active,#tapPC:active{text-decoration:underline}
-#pwa{position:absolute;left:68px;top:4px;font-size:11px;pointer-events:none}
-
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       background: rgba(0,0,0,.35);
       border:1px solid var(--line);
@@ -184,6 +175,7 @@
     }
     .smallLink{color:var(--gold2); text-decoration:none; font-weight:800}
   </style>
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 </head>
 <body>
   <div class="app">
@@ -203,7 +195,6 @@
         <span class="pill" id="pwa">PWA: …</span>
         <button class="btn gold" id="btnInstall" style="display:none">Installa</button>
         <button class="btn" id="btnRefresh">Aggiorna</button>
-        <button class="btn" id="btnGuide">Spiegazioni: ON</button>
       </div>
     </header>
 
@@ -219,7 +210,7 @@
             </div>
           </div>
           <div class="go">
-            <a class="link" href="/index.html" data-guide="hub" aria-label="Apri HUB">Apri</a>
+            <a class="link" href="/index.html" data-guide="note">Apri</a>
             <span class="kbd">/index.html</span>
           </div>
         </section>
@@ -233,7 +224,7 @@
             </div>
           </div>
           <div class="go">
-            <a class="link" href="/control.html" data-guide="control" aria-label="Apri Control">Apri</a>
+            <a class="link" href="/control.html">Apri</a>
             <span class="kbd">/control.html</span>
           </div>
         </section>
@@ -247,7 +238,7 @@
             </div>
           </div>
           <div class="go">
-            <a class="link" href="/vetrine.html" data-guide="vetrine" aria-label="Apri Vetrine">Apri</a>
+            <a class="link" href="/vetrine.html">Apri</a>
             <span class="kbd">/vetrine.html</span>
           </div>
         </section>
@@ -261,7 +252,7 @@
             </div>
           </div>
           <div class="go">
-            <a class="link" href="/bios.html" data-guide="bios" aria-label="Apri BIOS">Apri</a>
+            <a class="link" href="/bios.html">Apri</a>
             <span class="kbd">/bios.html</span>
           </div>
         </section>
@@ -271,23 +262,11 @@
             <div class="ico"><img src="/icons/pen.png" alt=""></div>
             <div>
               <h2 data-flow="note">Note & Copia</h2>
-
-          <!-- ChatGPT SerCucTech -->
-          <div class="card">
-            <div class="cardHeader">
-              <h2 data-flow="chatgpt">ChatGPT SerCucTech</h2>
-            </div>
-            <div class="cardBody">
-              <p>Assistente intelligente offline</p>
-              <a class="link" href="/system/guide/universal.html" data-guide="chatgpt" data-keep-label="1" aria-label="Apri ChatGPT SerCucTech">Apri</a>
-            </div>
-          </div>
-
               <p>Area appunti persistente (in arrivo nello step Login).</p>
             </div>
           </div>
           <div class="go">
-            <a class="link" href="/login.html" data-guide="note" aria-label="Apri Note e Copia">Apri</a>
+            <a class="link" href="/login.html">Apri</a>
             <span class="kbd">/login.html</span>
           </div>
         </section>
@@ -301,7 +280,7 @@
             </div>
           </div>
           <div class="go">
-            <a class="link" href="/media/" data-guide="media" aria-label="Apri File e Media">Apri</a>
+            <a class="link" href="/media/">Apri</a>
             <span class="kbd">/media/</span>
           </div>
         </section>
@@ -361,19 +340,6 @@
   })();
 
   document.getElementById("btnRefresh").onclick = () => location.reload(true);
-
-    // Toggle spiegazioni (guida/voce) globale
-    const btnGuide = document.getElementById("btnGuide");
-    const syncGuideBtn = () => {
-      const off = (localStorage.getItem("SCT_GUIDE_OFF")==="1");
-      btnGuide.textContent = off ? "Spiegazioni: OFF" : "Spiegazioni: ON";
-    };
-    btnGuide.onclick = () => {
-      const off = (localStorage.getItem("SCT_GUIDE_OFF")==="1");
-      localStorage.setItem("SCT_GUIDE_OFF", off ? "0" : "1");
-      syncGuideBtn();
-    };
-    syncGuideBtn();
 </script>
 
 <!-- iOS Quick Link -->
@@ -385,20 +351,7 @@
   </a>
 </div>
 
-<script src="/system/guide/ttsfix.js" defer></script>
-<script>
-(function(){
-let s=0,t=0;
-function reset(){s=0;t=0;}
-function ok(){if(!t)t=Date.now();if(Date.now()-t>2500)reset();s++;if(s===3){location.href="/system/chatgpt.html";reset();}}
-tapSER.onclick=()=>{reset();ok()};
-tapMINI.onclick=()=>{if(s===1)ok();else reset()};
-tapPC.onclick=()=>{if(s===2)ok();else reset()};
-})();
-</script>
-
-  <script src="/system/guide/loader.js" defer></script>
+<script src="/system/guide/loader.js" defer></script>
   <script src="/system/guide/doubletap.js" defer></script>
 </body>
 </html>
-

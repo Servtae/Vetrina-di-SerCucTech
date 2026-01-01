@@ -1,0 +1,89 @@
+<div id="sc-guide-bar">
+  <div id="sc-guide-wrap">
+    <div class="sc-left">🎧 <b>SerCucTech Guide</b></div>
+
+    <div class="sc-controls" id="sc-controls">
+      <!-- TASTI FIX (non spariscono più) -->
+      <button id="sc-share" title="Condividi (testo + link)">📤</button>
+      <button id="sc-cont" title="Dialogo continuo ON/OFF">CONT.</button>
+
+      <!-- TASTI GUIDE -->
+      <button id="sc-play" title="Play">▶️</button>
+      <button id="sc-pause" title="Pausa">⏸</button>
+      <button id="sc-mic" title="Voce (microfono)">🎤</button>
+      <button id="sc-bookmark" title="Segnalibro">🔖</button>
+      <button id="sc-lvl" title="Livello guida">👶</button>
+      <button id="sc-audio" title="Audio ON/OFF">🔊</button>
+      <button id="sc-intro" title="Info">ℹ</button>
+
+      <span id="sc-status">pronto</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  :root{ --gold:#caa54a; --text:#ffd77a; --bg:#000; }
+
+  #sc-guide-bar{
+    position:fixed; top:0; left:0; right:0;
+    background:var(--bg);
+    border-bottom:2px solid var(--gold);
+    color:var(--text);
+    z-index:9999;
+    font-family:system-ui;
+  }
+
+  /* CENTRO PAGINA */
+  #sc-guide-wrap{
+    max-width:980px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+  }
+
+  .sc-left{
+    white-space:nowrap;
+    flex:0 0 auto;
+    opacity:.95;
+  }
+
+  /* PULSANTI: una riga + scroll orizzontale */
+  .sc-controls{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex:1 1 auto;
+    overflow-x:auto;
+    overflow-y:hidden;
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+    padding-bottom:2px;
+  }
+
+  .sc-controls::-webkit-scrollbar{ height:6px; }
+  .sc-controls::-webkit-scrollbar-thumb{ background:rgba(202,165,74,.45); border-radius:999px; }
+
+  .sc-controls button{
+    flex:0 0 auto;
+    background:#111;
+    color:var(--text);
+    border:1px solid var(--gold);
+    border-radius:12px;
+    padding:6px 10px;
+    font-weight:900;
+    line-height:1;
+  }
+
+  #sc-status{
+    flex:0 0 auto;
+    color:#9ad7c2;
+    font-weight:900;
+    margin-left:8px;
+    padding-right:8px;
+  }
+
+  body{ padding-top:56px; }
+</style>

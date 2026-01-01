@@ -1,0 +1,106 @@
+/* SerCucTech TTS FIX — anti-taglio + chunking + cancel protetto */
+(() => {
+  const LS_AUDIO = "scGuide.audio";
+  const LS_CONT  = "scVoice.continuous";
+
+  const origCancel = speechSynthesis.cancel.bind(speechSynthesis);
+  let allowCancel = false;
+
+  // Blocca i cancel automatici (che tagliano la voce)
+  speechSynthesis.cancel = function(){
+    if(allowCancel) return origCancel();
+    // ignorato
+  };
+
+  function withAllowCancel(fn){
+    allowCancel = true;
+    try{ fn(); } finally { setTimeout(()=>{ allowCancel=false; }, 50); }
+  }
+
+  const getLang = () => {
+    const l=(navigator.language||"en").toLowerCase();
+    if(l.startsWith("it")) return "it-IT";
+    if(l.startsWith("uk")||l.startsWith("ua")) return "uk-UA";
+    return "en-US";
+  };
+
+  function audioEnabled(){
+    return (localStorage.getItem(LS_AUDIO) ?? "1") === "1";
+  }
+
+  // Spezza testo in pezzi brevi (anti-stop su Android/iOS)
+  function chunkText(text, max=140){
+    const t = String(text||"").replace(/\s+/g," ").trim();
+    if(!t) return [];
+    const parts = [];
+    let s = t;
+    while(s.length > max){
+      // prova a tagliare su punteggiatura o spazio
+      let cut = Math.max(
+        s.lastIndexOf(". ", max),
+        s.lastIndexOf("! ", max),
+        s.lastIndexOf("? ", max),
+        s.lastIndexOf("; ", max),
+        s.lastIndexOf(", ", max),
+        s.lastIndexOf(" ",  max)
+      );
+      if(cut < 40) cut = max; // se non trova nulla, taglia duro
+      parts.push(s.slice(0, cut+1).trim());
+      s = s.slice(cut+1).trim();
+    }
+    if(s) parts.push(s);
+    return parts;
+  }
+
+  // Coda vera (un solo speak alla volta)
+  const Q = { busy:false, items:[] };
+
+  function pump(){
+    if(Q.busy) return;
+    const next = Q.items.shift();
+    if(!next) return;
+
+    Q.busy = true;
+    const u = new SpeechSynthesisUtterance(next);
+    u.lang = getLang();
+    u.rate = 1.0;
+    u.pitch = 1.0;
+
+    u.onend = () => { Q.busy=false; setTimeout(pump, 30); };
+    u.onerror = () => { Q.busy=false; setTimeout(pump, 30); };
+
+    try{ speechSynthesis.speak(u); }
+    catch(e){ Q.busy=false; }
+  }
+
+  function say(text){
+    if(!audioEnabled()) return;
+    const chunks = chunkText(text, 140);
+    if(!chunks.length) return;
+    Q.items.push(...chunks);
+    pump();
+  }
+
+  function stop(){
+    // qui il cancel è voluto
+    withAllowCancel(() => origCancel());
+    Q.items = [];
+    Q.busy = false;
+  }
+
+  // Espone API globale usabile da guide.js / patch / altri moduli
+  window.SerCucTechTTS = { say, stop, chunkText };
+
+  // Collega il tasto pausa (⏸) se esiste
+  function bindPause(){
+    const b = document.getElementById("sc-pause");
+    if(b && !b.__scBound){
+      b.__scBound = true;
+      b.addEventListener("click", () => stop(), true);
+    }
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded", bindPause);
+  } else bindPause();
+})();

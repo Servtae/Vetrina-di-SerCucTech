@@ -1,0 +1,26 @@
+{
+  "hub": {
+    "title": "HUB centrale",
+    "desc": "Qui sei nel cuore del tuo SerCucTech MINI PC. Da qui puoi controllare tutto il sistema."
+  },
+  "note": {
+    "title": "Note e Copia",
+    "desc": "Area appunti persistente. Serve per scrivere, copiare e memorizzare contenuti importanti."
+  },
+  "media": {
+    "title": "File e Media",
+    "desc": "Gestione file, upload immagini, video, audio e documenti."
+  },
+  "vetrine": {
+    "title": "Vetrine",
+    "desc": "Spazi pubblici dove mostrare contenuti, prodotti, presentazioni e servizi."
+  },
+  "control": {
+    "title": "Pannello di controllo",
+    "desc": "Qui puoi gestire sicurezza, accessi, PIN, sessioni e controllo remoto."
+  },
+  "bios": {
+    "title": "BIOS SerCucTech",
+    "desc": "Area protetta del sistema. Serve per configurazioni avanzate e sicurezza."
+  }
+}

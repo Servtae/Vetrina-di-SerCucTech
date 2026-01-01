@@ -1,0 +1,17 @@
+{
+  "it": {
+    "title": "Benvenuto nel SerCucTech Mini-PC",
+    "base": "Questo è un mini computer dentro il tuo telefono. Puoi aprire le app, gestire file e usare accesso remoto. Se vuoi, attiva la guida audio e segui i numeri sullo schermo.",
+    "pro": "Questo HUB è un PWA/Server locale con tunnel remoto. Usa la guida per navigazione assistita, upload file e gestione vetrine. Puoi memorizzare percorsi e riprenderli."
+  },
+  "en": {
+    "title": "Welcome to SerCucTech Mini-PC",
+    "base": "This is a mini computer inside your phone. You can open apps, manage files and use remote access. If you want, enable audio guide and follow the numbers on screen.",
+    "pro": "This HUB is a local PWA/Server with remote tunnel. Use the guide for assisted navigation, file upload and vetrine management. You can save paths and resume later."
+  },
+  "ua": {
+    "title": "Ласкаво просимо до SerCucTech Mini-PC",
+    "base": "Це міні комп'ютер у твоєму телефоні. Ти можеш відкривати додатки, керувати файлами та використовувати віддалений доступ. За бажанням увімкни аудіо-підказки та слідуй цифрам на екрані.",
+    "pro": "Цей HUB — локальний PWA/сервер із віддаленим тунелем. Використовуй гайд для навігації, завантаження файлів і керування вітринами. Можна зберігати кроки і продовжувати пізніше."
+  }
+}

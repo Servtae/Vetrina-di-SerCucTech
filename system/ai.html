@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SerCucTech • AI Console</title>
+  <style>
+    :root{--bg:#000;--fg:#ffd77a;--mut:#9ad7c2;--line:#caa54a;--card:#070707}
+    body{margin:0;font-family:system-ui;background:var(--bg);color:var(--fg)}
+    .wrap{max-width:980px;margin:0 auto;padding:16px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    a{color:#9ad7c2;text-decoration:none;font-weight:900}
+    .card{background:var(--card);border:1px solid #caa54a55;border-radius:16px;padding:14px;margin-top:12px}
+    button{background:#111;color:var(--fg);border:1px solid #caa54a;border-radius:12px;padding:10px 12px;font-weight:900}
+    button.danger{border-color:#ff8f8f;color:#ff8f8f}
+    input,select{background:#050505;border:1px solid #caa54a55;color:var(--fg);border-radius:12px;padding:10px 12px}
+    textarea{width:100%;min-height:240px;background:#050505;border:1px solid #caa54a55;color:var(--fg);
+      border-radius:12px;padding:12px;font-family:ui-monospace,monospace}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid #caa54a;border-radius:999px;padding:6px 10px;
+      font-weight:900;background:#111}
+    .ok{border-color:#00ff9a;color:#b6ffd9}
+    .err{border-color:#ff8f8f;color:#ff8f8f}
+    .mut{color:var(--mut);font-size:12px;line-height:1.35}
+    .label{font-weight:900}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div style="font-size:22px;font-weight:1000">🤖 AI Console</div>
+        <div class="mut">Genera il “Primo Messaggio” (DNA + contesto) e gestisci contesti salvati.</div>
+      </div>
+      <div class="row">
+        <a href="/index.html">← HUB</a>
+        <span id="st" class="pill">pronto</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="mut">
+          Flusso: scegli contesto → “Genera” → “Copia” → “Apri ChatGPT” → incolla come PRIMO messaggio.
+        </div>
+        <div class="row">
+          <button id="load">📥 Carica CORE</button>
+          <button id="gen">🧬 Genera</button>
+          <button id="copy">📋 Copia</button>
+          <button id="open">🌍 Apri ChatGPT</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between">
+          <div class="label">📌 Contesti salvati</div>
+          <div class="row">
+            <button id="add">➕ Aggiungi</button>
+            <button id="del" class="danger">🗑 Elimina</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div style="min-width:220px;flex:1">
+            <div class="mut">Lista</div>
+            <select id="ctxList" style="width:100%"></select>
+          </div>
+          <div style="min-width:220px;flex:2">
+            <div class="mut">Contesto (modificabile)</div>
+            <input id="ctx" style="width:100%" placeholder="Es: HUB / Guide / Sicurezza / PWA" />
+          </div>
+        </div>
+
+        <div class="mut" style="margin-top:10px">
+          Suggerimento: usa contesti come “Vetrine hotel”, “Manuale spa”, “Officina”, “Lingue”, “Monetizzazione”, ecc.
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="label">🧠 Primo messaggio pronto (da incollare nella nuova chat)</div>
+        <textarea id="prompt" spellcheck="false"></textarea>
+      </div>
+    </div>
+  </div>
+
+<script>
+const $=id=>document.getElementById(id);
+const LS = {
+  ctxs: "sc.ctxs.v1",
+  lastCtx: "sc.lastCtx.v1",
+  core: "sc.core.v1",
+  prompt: "sc.corePrompt.v2"
+};
+
+function setStatus(ok,msg){
+  const s=$("st");
+  s.textContent=msg;
+  s.className="pill "+(ok?"ok":"err");
+}
+
+function defaultCtxs(){
+  return [
+    "HUB / Guide / Sicurezza / PWA",
+    "Vetrine pubbliche + Upload file",
+    "Login admin + PIN invisibile + Dispositivi autorizzati",
+    "Monetizzazione (vetrine vendibili, hosting, affiliazioni)",
+    "iOS (PWA installazione e limiti Safari)"
+  ];
+}
+
+function loadCtxs(){
+  try{
+    const raw = localStorage.getItem(LS.ctxs);
+    const arr = raw ? JSON.parse(raw) : null;
+    return (Array.isArray(arr) && arr.length) ? arr : defaultCtxs();
+  }catch(e){
+    return defaultCtxs();
+  }
+}
+
+function saveCtxs(arr){
+  localStorage.setItem(LS.ctxs, JSON.stringify(arr));
+}
+
+function renderCtxList(selected){
+  const arr = loadCtxs();
+  const sel = $("ctxList");
+  sel.innerHTML = "";
+  arr.forEach((c, i)=>{
+    const o=document.createElement("option");
+    o.value = String(i);
+    o.textContent = c.length>60 ? (c.slice(0,60)+"…") : c;
+    o.dataset.full = c;
+    sel.appendChild(o);
+  });
+
+  const last = selected ?? localStorage.getItem(LS.lastCtx) ?? "0";
+  const idx = Math.max(0, Math.min(arr.length-1, parseInt(last,10)||0));
+  sel.value = String(idx);
+  $("ctx").value = arr[idx];
+  localStorage.setItem(LS.lastCtx, String(idx));
+}
+
+function build(core, ctx){
+  return `Agisci come “SerCucTech Core Assistant”.
+
+Io sto costruendo un ecosistema digitale chiamato SerCucTech HUB:
+un sistema operativo web/PWA con:
+– HUB grafico
+– guide audio multilingua
+– intelligenza procedurale passo-passo
+– vetrine, manuali, formazione, monetizzazione, sicurezza, PIN invisibili, voice control, offline, ecc.
+
+Questa chat NON è isolata:
+è un MODULO OPERATIVO collegato al mio HUB madre.
+
+CONTESTO: ${ctx}
+
+DNA (core) del sistema:
+${JSON.stringify(core, null, 2)}
+
+Regole operative:
+• Dammi sempre i comandi pronti per Termux/Linux
+• Procedi un passo alla volta (niente “tutto insieme”)
+• Ogni procedura deve essere guidabile anche in audio/voce
+• Ogni cosa deve integrarsi nel sistema guide SerCucTech
+• Progetta per utenti a bassa cultura digitale (chiaro e universale)
+• Mantieni coerenza totale con stile/lingue/sicurezza SerCucTech.`;
+}
+
+async function loadCore(){
+  try{
+    const r = await fetch("/system/sercuctech-core.json?ts="+Date.now());
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const core = await r.json();
+    localStorage.setItem(LS.core, JSON.stringify(core));
+    setStatus(true,"CORE caricato ✅");
+    return core;
+  }catch(e){
+    setStatus(false,"CORE non letto ❌");
+    return null;
+  }
+}
+
+function getCoreFromCache(){
+  try{
+    const raw = localStorage.getItem(LS.core);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+function generatePrompt(){
+  const ctx = ($("ctx").value || "").trim();
+  if(!ctx){ setStatus(false,"Scrivi un contesto"); return; }
+
+  const core = getCoreFromCache();
+  if(!core){ setStatus(false,"Carica prima il CORE"); return; }
+
+  const p = build(core, ctx);
+  $("prompt").value = p;
+  localStorage.setItem(LS.prompt, p);
+  setStatus(true,"Generato ✅");
+}
+
+async function copyPrompt(){
+  const t = ($("prompt").value || "").trim();
+  if(!t){ setStatus(false,"Niente da copiare"); return; }
+  try{
+    await navigator.clipboard.writeText(t);
+    setStatus(true,"Copiato ✅");
+  }catch(e){
+    $("prompt").select();
+    document.execCommand("copy");
+    setStatus(true,"Copiato (fallback) ✅");
+  }
+}
+
+function openChatGPT(){
+  window.open("https://chatgpt.com/", "_blank");
+  setStatus(true,"ChatGPT aperto → Incolla ✅");
+}
+
+function addContext(){
+  const ctx = ($("ctx").value || "").trim();
+  if(!ctx){ setStatus(false,"Contesto vuoto"); return; }
+  const arr = loadCtxs();
+  if(arr.includes(ctx)){ setStatus(true,"Già presente ✅"); return; }
+  arr.unshift(ctx);
+  saveCtxs(arr);
+  renderCtxList("0");
+  setStatus(true,"Contesto aggiunto ✅");
+}
+
+function delContext(){
+  const arr = loadCtxs();
+  const idx = parseInt($("ctxList").value,10);
+  if(!arr[idx]){ setStatus(false,"Selezione non valida"); return; }
+  const removed = arr.splice(idx,1);
+  saveCtxs(arr.length?arr:defaultCtxs());
+  renderCtxList("0");
+  setStatus(true,`Eliminato ✅`);
+}
+
+(function init(){
+  renderCtxList();
+
+  const savedPrompt = localStorage.getItem(LS.prompt);
+  if(savedPrompt) $("prompt").value = savedPrompt;
+
+  $("ctxList").onchange = ()=>{
+    const arr = loadCtxs();
+    const idx = parseInt($("ctxList").value,10);
+    $("ctx").value = arr[idx] || "";
+    localStorage.setItem(LS.lastCtx, String(idx||0));
+  };
+
+  $("load").onclick = async ()=>{ await loadCore(); };
+  $("gen").onclick = generatePrompt;
+  $("copy").onclick = copyPrompt;
+  $("open").onclick = openChatGPT;
+  $("add").onclick = addContext;
+  $("del").onclick = delContext;
+
+  setStatus(true,"pronto");
+})();
+</script>
+</body>
+</html>

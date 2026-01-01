@@ -1,0 +1,331 @@
+(() => {
+  const LS = {
+    audio: "scGuide.audio",
+    autoplayDesc: "scGuide.autoplayDesc",
+    pending: "scGuide.pending",
+    saved: "scGuide.savedPaths",
+    last:  "scGuide.lastRun",
+    level: "scGuide.level"
+  };
+
+  const LANG = (() => {
+    const l = (navigator.language || "en").toLowerCase();
+    if (l.startsWith("it")) return "it";
+    if (l.startsWith("uk") || l.startsWith("ua")) return "ua";
+    return "en";
+  })();
+
+  const voiceLang = (LANG === "ua") ? "uk-UA" : (LANG === "it" ? "it-IT" : "en-US");
+
+  const state = {
+    ctx: "hub",
+    flowId: null,
+    step: 0,
+    playing: false,
+    audioOn: localStorage.getItem(LS.audio) !== "0",
+    level: localStorage.getItem(LS.level) || "basic",
+    flows: null,
+    targets: null,
+    overlayEl: null,
+    badgeEl: null,
+    audioUnlocked: false,
+    lastText: ""
+  };
+
+  const $ = (q, root=document)=>root.querySelector(q);
+
+  // ===== AUDIO UNLOCK (necessario su iOS e spesso su Android) =====
+  function unlockAudioOnce(){
+    if(state.audioUnlocked) return true;
+    try{
+      // un "beep" muto per sbloccare speechSynthesis dopo un gesto utente
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(" ");
+      u.lang = voiceLang;
+      u.volume = 0; // muto
+      speechSynthesis.speak(u);
+      state.audioUnlocked = true;
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  function speak(text){
+    state.lastText = text || state.lastText || "";
+    if(!state.audioOn) return;
+    // se non è ancora sbloccato, prova comunque (ma su iOS non parlerà)
+    try{
+      if(!text) return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = voiceLang;
+      u.rate = 1;
+      u.pitch = 1;
+      u.volume = 1;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  function status(t){
+    const el = document.getElementById("sc-status");
+    if(el) el.textContent = t || "pronto";
+  }
+
+  async function loadJSON(url){
+    const r = await fetch(url, {cache:"no-store"});
+    if(!r.ok) throw new Error("fetch failed "+url);
+    return await r.json();
+  }
+
+  function ensureOverlay(){
+    if(state.overlayEl) return state.overlayEl;
+    const o = document.createElement("div");
+    o.id = "sc-guide-overlay";
+    o.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:9998;";
+    document.body.appendChild(o);
+    state.overlayEl = o;
+    return o;
+  }
+
+  function clearBadge(){
+    if(state.badgeEl && state.badgeEl.parentNode) state.badgeEl.parentNode.removeChild(state.badgeEl);
+    state.badgeEl = null;
+  }
+
+  function placeBadgeOn(el, num){
+    clearBadge();
+    if(!el) return;
+    const o = ensureOverlay();
+    const r = el.getBoundingClientRect();
+    const b = document.createElement("div");
+    b.className = "sc-badge";
+    b.textContent = String(num);
+    b.style.cssText = [
+      "position:fixed",
+      "left:"+(Math.max(6, r.left + 6))+"px",
+      "top:"+(Math.max(6, r.top + 6))+"px",
+      "width:26px;height:26px;border-radius:999px",
+      "display:flex;align-items:center;justify-content:center",
+      "font-weight:900;font-family:system-ui",
+      "background:#caa54a;color:#000",
+      "border:2px solid #000",
+      "box-shadow:0 6px 18px rgba(0,0,0,.35)",
+      "pointer-events:none",
+      "z-index:9999"
+    ].join(";");
+    o.appendChild(b);
+    state.badgeEl = b;
+  }
+
+  function findTarget(ctx, key){
+    const map = state.targets?.[ctx]?.[key] || [];
+    for(const sel of map){
+      const el = $(sel);
+      if(el) return el;
+    }
+    return null;
+  }
+
+  function currentFlow(){
+    const byCtx = state.flows?.[state.ctx];
+    if(!byCtx) return null;
+    const byLang = byCtx[LANG] || byCtx.en || null;
+    return byLang;
+  }
+
+  function getStep(){
+    const flow = currentFlow();
+    if(!flow) return null;
+    const arr = flow[state.flowId];
+    if(!arr || !arr.length) return null;
+    return arr[state.step] || null;
+  }
+
+  function saveResume(){
+    localStorage.setItem(LS.last, JSON.stringify({
+      ctx: state.ctx, flowId: state.flowId, step: state.step, ts: Date.now()
+    }));
+  }
+
+  function tryResume(){
+    try{
+      const last = JSON.parse(localStorage.getItem(LS.last) || "null");
+      if(!last || last.ctx !== state.ctx) return false;
+      state.flowId = last.flowId;
+      state.step = last.step || 0;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function setFlowDefault(){
+    const flow = currentFlow();
+    if(!flow) return;
+    const keys = Object.keys(flow);
+    if(!keys.length) return;
+    state.flowId = keys[0];
+    state.step = 0;
+  }
+
+  function runStep(){
+    const s = getStep();
+    if(!s){
+      status("fine ✅");
+      clearBadge();
+      return;
+    }
+    const t = findTarget(state.ctx, s.target || "");
+    placeBadgeOn(t, (state.step+1));
+
+    const txt = s.text || "";
+    status(s.title ? s.title : "step "+(state.step+1));
+    speak(txt);
+    saveResume();
+  }
+
+  function next(){
+    const flow = currentFlow();
+    const arr = flow?.[state.flowId] || [];
+    if(state.step < arr.length-1) state.step++;
+    runStep();
+  }
+
+  function prev(){
+    if(state.step > 0) state.step--;
+    runStep();
+  }
+
+  async function boot(){
+    if(state.flows && state.targets) return;
+    state.flows = await loadJSON("/system/guide/flows.json");
+    state.targets = await loadJSON("/system/guide/targets.json");
+  }
+
+  async function start(opts={}){
+    await boot();
+    state.ctx = opts.context || state.ctx || "hub";
+
+    if(opts.resume) {
+      const ok = tryResume();
+      if(!ok) setFlowDefault();
+    } else {
+      setFlowDefault();
+    }
+
+    state.audioOn = (localStorage.getItem(LS.audio) !== "0");
+    runStep();
+  }
+
+  function toggleAudio(){
+    unlockAudioOnce(); // gesto
+    state.audioOn = !state.audioOn;
+    localStorage.setItem(LS.audio, state.audioOn ? "1" : "0");
+    status(state.audioOn ? "audio ON" : "audio OFF");
+    if(state.audioOn) speak(state.lastText || "Audio attivato");
+  }
+
+  function play(){
+    unlockAudioOnce(); // gesto
+    state.playing = true;
+    runStep();
+  }
+
+  function pause(){
+    unlockAudioOnce(); // gesto
+    state.playing = false;
+    try{ speechSynthesis.cancel(); }catch(e){}
+    status("pausa");
+  }
+
+  // intent vocale base (resta)
+  function voiceIntent(){
+    unlockAudioOnce(); // gesto
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR){ status("🎤 non supportato"); return; }
+    const r = new SR();
+    r.lang = voiceLang;
+    r.interimResults = false;
+    r.maxAlternatives = 1;
+    status("🎤 ascolto...");
+    r.onresult = (e)=>{
+      const text = (e.results?.[0]?.[0]?.transcript || "").toLowerCase();
+      status("🎤 "+text);
+      if(text.includes("remot") || text.includes("remote")){
+        const k = Object.keys(currentFlow()||{}).find(k=>k.includes("remote"));
+        if(k){ state.flowId = k; state.step = 0; runStep(); return; }
+      }
+      if(text.includes("vetrin") || text.includes("showcase")){
+        const k = Object.keys(currentFlow()||{}).find(k=>k.includes("vetr"));
+        if(k){ state.flowId = k; state.step = 0; runStep(); return; }
+      }
+      runStep();
+    };
+    r.onerror = ()=>status("🎤 errore");
+    r.start();
+  }
+
+  // ===== BIND ROBUSTO: riaggancia anche se barra viene reiniettata =====
+  function wireBar(){
+    const p = document.getElementById("sc-play");
+    const pa = document.getElementById("sc-pause");
+    const mic = document.getElementById("sc-mic");
+    const bk = document.getElementById("sc-bookmark");
+    const lvl = document.getElementById("sc-lvl");
+    const au = document.getElementById("sc-audio");
+    const intro = document.getElementById("sc-intro");
+
+    if(p) p.onclick = play;
+    if(pa) pa.onclick = pause;
+    if(mic) mic.onclick = voiceIntent;
+    if(au) au.onclick = toggleAudio;
+
+    if(bk) bk.onclick = ()=>{
+      unlockAudioOnce(); // gesto
+      const saved = JSON.parse(localStorage.getItem(LS.saved) || "[]");
+      saved.unshift({ctx:state.ctx, flowId:state.flowId, step:state.step, ts:Date.now()});
+      localStorage.setItem(LS.saved, JSON.stringify(saved.slice(0,30)));
+      status("🔖 salvato");
+      speak("Segnalibro salvato");
+    };
+
+    if(lvl) lvl.onclick = ()=>{
+      unlockAudioOnce(); // gesto
+      state.level = (state.level === "basic") ? "pro" : "basic";
+      localStorage.setItem(LS.level, state.level);
+      status(state.level === "basic" ? "livello base" : "livello avanzato");
+      speak(state.level === "basic" ? "Livello base" : "Livello avanzato");
+      runStep();
+    };
+
+    if(intro) intro.onclick = ()=>{
+      unlockAudioOnce(); // gesto
+      // intro: parla subito una frase e poi apre la pagina
+      speak(LANG==="it" ? "Apriamo la guida universale del progetto." :
+            LANG==="ua" ? "Відкриваємо універсальний гід про проект." :
+                          "Opening the universal project guide.");
+      setTimeout(()=>{ location.href = "/system/guide/universal.html"; }, 250);
+    };
+
+    // tap qualsiasi sulla barra = sblocca audio
+    const bar = document.getElementById("sc-guide-bar");
+    if(bar){
+      bar.addEventListener("pointerdown", unlockAudioOnce, {passive:true});
+      bar.addEventListener("touchstart", unlockAudioOnce, {passive:true});
+      bar.addEventListener("mousedown", unlockAudioOnce, {passive:true});
+    }
+  }
+
+  function autoRewire(){
+    wireBar();
+    const obs = new MutationObserver(()=>wireBar());
+    obs.observe(document.documentElement, {childList:true, subtree:true});
+  }
+
+  window.SCGUIDE = { start, next, prev };
+
+  window.addEventListener("DOMContentLoaded", ()=>{
+    autoRewire();
+    window.dispatchEvent(new CustomEvent("scguide:ready"));
+  });
+
+})();

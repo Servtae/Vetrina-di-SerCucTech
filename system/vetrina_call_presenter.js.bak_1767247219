@@ -1,0 +1,481 @@
+SCT_OK_v1
+/* SerCucTech — WhatsApp+Telegram + Presenter + Remote Laser/Marker (P2P manual codes) */
+(() => {
+  if (!/\/vetrina\.html(\?|$)/i.test(location.pathname)) return;
+
+  const CONTACT_URL = "/system/contact.json";
+  const FALLBACK = { whatsappPhone: "+393208852858", telegramUser: "sercuctech", brand: "SerCucTech" };
+
+  const qp = new URLSearchParams(location.search);
+  const vid = (qp.get("id") || "").trim();
+  const vctx = (qp.get("ctx") || "Principale").trim() || "Principale";
+  const vetrinaUrl = location.href;
+
+  const vTitle =
+    (document.querySelector("h1")?.textContent ||
+      document.querySelector("h2")?.textContent ||
+      "Vetrina").trim().slice(0, 80);
+
+  const msg = [
+    "📹 Videochiamata SerCucTech",
+    `Vetrina: ${vTitle}`,
+    `ID: ${vid || "-"}`,
+    `Contesto: ${vctx}`,
+    "",
+    "Apri questa vetrina e avvia CONDIVISIONE SCHERMO durante la chiamata:",
+    vetrinaUrl,
+    "",
+    "Puoi usare anche 'Modalità Spiega' (laser+marker) e 'Laser Remoto' (puntatore bidirezionale)."
+  ].join("\n");
+
+  const STUN = [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" }
+  ];
+
+  function digitsPhone(p) { return String(p || "").replace(/[^\d]/g, ""); }
+
+  async function loadContact() {
+    try {
+      const r = await fetch(CONTACT_URL, { cache: "no-store" });
+      if (!r.ok) return FALLBACK;
+      const j = await r.json();
+      return { ...FALLBACK, ...j };
+    } catch { return FALLBACK; }
+  }
+
+  function toast(text) {
+    let t = document.getElementById("sctToast");
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "sctToast";
+      t.style.cssText =
+        "position:fixed;left:14px;right:14px;bottom:86px;z-index:99998;" +
+        "max-width:980px;margin:0 auto;padding:10px 12px;border-radius:16px;" +
+        "border:1px solid rgba(212,175,55,.28);background:rgba(0,0,0,.45);" +
+        "color:#f3f0e6;box-shadow:0 18px 55px rgba(0,0,0,.35);display:none;backdrop-filter:blur(8px)";
+      document.body.appendChild(t);
+    }
+    t.textContent = text;
+    t.style.display = "block";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => (t.style.display = "none"), 1800);
+  }
+
+  async function copy(text) {
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch { return false; }
+  }
+
+  function b64e(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function b64d(str) { return decodeURIComponent(escape(atob(str.trim()))); }
+
+  function buildUI() {
+    const wrap = document.createElement("div");
+    wrap.id = "sctCallPresenter";
+    wrap.innerHTML = `
+      <style>
+        #sctCallPresenter{position:fixed;right:14px;bottom:14px;z-index:99999;display:flex;flex-direction:column;gap:10px}
+        #sctCallPresenter .btn{
+          width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+          border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.35);color:#f3f0e6;font-weight:1000;
+          text-decoration:none;box-shadow:0 18px 55px rgba(0,0,0,.55);backdrop-filter:blur(8px);user-select:none
+        }
+        #sctCallPresenter .btn.primary{
+          background:linear-gradient(180deg, rgba(255,222,122,.95), rgba(212,175,55,.80));
+          color:#000;
+        }
+
+        /* layer presenter/local+remote */
+        #sctPresenterLayer{
+          position:fixed;inset:0;z-index:99997;pointer-events:none;display:none;
+        }
+        #sctPointerLocal, #sctPointerRemote{
+          position:absolute;width:22px;height:22px;border-radius:999px;
+          transform:translate(-50%,-50%);
+          box-shadow:0 0 0 2px rgba(0,0,0,.35);
+        }
+        #sctPointerLocal{ border:3px solid rgba(255,222,122,.95); }
+        #sctPointerRemote{ border:3px dashed rgba(90,200,250,.95); }
+
+        .sctMarker{
+          position:absolute; transform:translate(-50%,-50%);
+          min-width:26px; height:26px; padding:0 8px;
+          border-radius:999px;
+          background:rgba(0,0,0,.55);
+          color:#fff; font-weight:1000; font-size:14px;
+          display:flex; align-items:center; justify-content:center;
+          box-shadow:0 14px 40px rgba(0,0,0,.55);
+          border:1px solid rgba(212,175,55,.55);
+        }
+        .sctMarker.remote{
+          border:1px dashed rgba(90,200,250,.95);
+        }
+        .sctMarker::after{
+          content:""; position:absolute; left:50%; top:100%; width:0; height:0;
+          border-left:6px solid transparent; border-right:6px solid transparent;
+          border-top:10px solid rgba(0,0,0,.55); transform:translateX(-50%);
+        }
+
+        /* pannello connessione remoto */
+        #sctRemotePanel{
+          position:fixed; left:14px; right:14px; top:14px; z-index:99996;
+          max-width:980px; margin:0 auto;
+          display:none;
+          border:1px solid rgba(212,175,55,.28);
+          background:rgba(0,0,0,.55);
+          border-radius:16px;
+          padding:12px;
+          backdrop-filter: blur(8px);
+          box-shadow:0 18px 55px rgba(0,0,0,.45);
+          color:#f3f0e6;
+        }
+        #sctRemotePanel h3{margin:0 0 8px;font-size:16px}
+        #sctRemotePanel .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+        #sctRemotePanel textarea{
+          width:100%; min-height:92px; resize:vertical;
+          border-radius:12px; border:1px solid rgba(212,175,55,.28);
+          background:rgba(0,0,0,.35); color:#f3f0e6;
+          padding:10px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size:12px;
+        }
+        #sctRemotePanel .mini{
+          padding:10px 12px; border-radius:12px; border:1px solid rgba(212,175,55,.35);
+          background:rgba(0,0,0,.25); color:#f3f0e6; font-weight:900;
+        }
+        #sctRemotePanel .mini.primary{
+          background:linear-gradient(180deg, rgba(255,222,122,.95), rgba(212,175,55,.80));
+          color:#000;
+        }
+        #sctRemotePanel .status{opacity:.9;font-size:13px}
+      </style>
+
+      <!-- call -->
+      <a class="btn primary" id="btnWA" href="#" aria-label="Apri WhatsApp con messaggio">🟢</a>
+      <a class="btn" id="btnTG" href="#" aria-label="Apri Telegram e copia messaggio">✈️</a>
+
+      <!-- presenter -->
+      <a class="btn primary" id="btnPresenter" href="#" aria-label="Modalità Spiega (laser+marker)">🎯</a>
+      <a class="btn" id="btnClear" href="#" aria-label="Pulisci marker">🧽</a>
+
+      <!-- remote -->
+      <a class="btn primary" id="btnRemote" href="#" aria-label="Laser Remoto (bidirezionale)">🔁</a>
+
+      <a class="btn" id="btnCopyLink" href="#" aria-label="Copia link vetrina">🔗</a>
+
+      <div id="sctPresenterLayer">
+        <div id="sctPointerLocal"></div>
+        <div id="sctPointerRemote"></div>
+      </div>
+
+      <div id="sctRemotePanel">
+        <h3>Laser Remoto — Bidirezionale</h3>
+        <div class="status" id="sctRemoteStatus">Stato: OFF</div>
+        <div style="height:10px"></div>
+        <div class="row">
+          <button class="mini primary" id="btnHost">1) CREA CODICE (HOST)</button>
+          <button class="mini" id="btnJoin">2) INSERISCI CODICE (JOIN)</button>
+          <button class="mini" id="btnApplyAnswer">3) APPLICA RISPOSTA (HOST)</button>
+          <button class="mini" id="btnDisconnect">DISCONNETTI</button>
+          <button class="mini" id="btnClosePanel">CHIUDI</button>
+        </div>
+        <div style="height:10px"></div>
+        <div class="status">CODICE / RISPOSTA (copia-incolla via chat durante la chiamata):</div>
+        <textarea id="txtCode" placeholder="Qui comparirà il codice oppure incolla quello ricevuto..."></textarea>
+        <div style="height:10px"></div>
+        <div class="row">
+          <button class="mini" id="btnCopyCode">COPIA</button>
+          <button class="mini" id="btnClearCode">SVUOTA</button>
+          <span class="status">Suggerimento: durante WhatsApp/Telegram incolla questo testo in chat.</span>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(wrap);
+    return wrap;
+  }
+
+  (async () => {
+    const cfg = await loadContact();
+    const wrap = buildUI();
+
+    // --- Call buttons ---
+    const waDigits = digitsPhone(cfg.whatsappPhone);
+    const waUrl = waDigits ? `https://wa.me/${waDigits}?text=${encodeURIComponent(msg)}`
+                           : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    const tgUser = String(cfg.telegramUser || "sercuctech").replace(/^@/, "");
+    const tgChat = `https://t.me/${encodeURIComponent(tgUser)}`;
+
+    wrap.querySelector("#btnWA").onclick = (e) => { e.preventDefault(); window.open(waUrl, "_blank", "noopener"); };
+    wrap.querySelector("#btnTG").onclick = async (e) => {
+      e.preventDefault();
+      const ok = await copy(msg);
+      if (ok) toast("Messaggio copiato ✅ (incolla su Telegram)");
+      else prompt("Copia questo messaggio:", msg);
+      window.open(tgChat, "_blank", "noopener");
+    };
+
+    wrap.querySelector("#btnCopyLink").onclick = async (e) => {
+      e.preventDefault();
+      const ok = await copy(vetrinaUrl);
+      if (ok) toast("Link vetrina copiato ✅");
+      else prompt("Copia link vetrina:", vetrinaUrl);
+    };
+
+    // --- Presenter (local + markers) ---
+    const layer = wrap.querySelector("#sctPresenterLayer");
+    const ptrLocal = wrap.querySelector("#sctPointerLocal");
+    const ptrRemote = wrap.querySelector("#sctPointerRemote");
+
+    let presenterOn = false;
+    let localN = 0;
+    let remoteN = 0;
+
+    // remote link state
+    let remotePanelOn = false;
+    const panel = wrap.querySelector("#sctRemotePanel");
+    const statusEl = wrap.querySelector("#sctRemoteStatus");
+    const txt = wrap.querySelector("#txtCode");
+
+    // WebRTC objects
+    let pc = null;
+    let dc = null;
+    let remoteOn = false;           // attivo solo quando connesso
+    let sendEnabled = false;        // opzione: invia i tuoi movimenti/marker
+    let recvEnabled = false;        // opzione: ricevi movimenti/marker
+
+    function setPresenter(on) {
+      presenterOn = !!on;
+      layer.style.display = presenterOn ? "block" : "none";
+      toast(presenterOn ? "Modalità Spiega ON ✅ (tocca per marker)" : "Modalità Spiega OFF");
+    }
+
+    function moveLocal(x, y) { ptrLocal.style.left = x + "px"; ptrLocal.style.top = y + "px"; }
+    function moveRemote(x, y) { ptrRemote.style.left = x + "px"; ptrRemote.style.top = y + "px"; }
+
+    function addMarker(x, y, isRemote=false) {
+      const m = document.createElement("div");
+      m.className = "sctMarker" + (isRemote ? " remote" : "");
+      if (isRemote) { remoteN += 1; m.textContent = "R" + remoteN; }
+      else { localN += 1; m.textContent = String(localN); }
+      m.style.left = x + "px";
+      m.style.top = y + "px";
+      layer.appendChild(m);
+
+      // doppio tap per rimuovere (solo locale)
+      let t = 0;
+      m.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const now = Date.now();
+        if (now - t < 350) m.remove();
+        t = now;
+      });
+    }
+
+    function clearMarkers() {
+      [...layer.querySelectorAll(".sctMarker")].forEach(x => x.remove());
+      localN = 0; remoteN = 0;
+      toast("Marker puliti ✅");
+      if (dc && dc.readyState === "open" && sendEnabled) {
+        dc.send(JSON.stringify({ t: "clear" }));
+      }
+    }
+
+    // Normalize positions (0..1) so it works across different screens
+    function norm(x, y) {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      return { nx: Math.max(0, Math.min(1, x / w)), ny: Math.max(0, Math.min(1, y / h)) };
+    }
+    function denorm(nx, ny) {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      return { x: nx * w, y: ny * h };
+    }
+
+    // --- Event hooks (presenter) ---
+    const onMove = (ev) => {
+      if (!presenterOn) return;
+      const p = ev.touches && ev.touches[0] ? ev.touches[0] : ev;
+      const x = p.clientX, y = p.clientY;
+      moveLocal(x, y);
+      if (dc && dc.readyState === "open" && sendEnabled) {
+        const { nx, ny } = norm(x, y);
+        dc.send(JSON.stringify({ t: "move", nx, ny }));
+      }
+    };
+
+    const onTap = (ev) => {
+      if (!presenterOn) return;
+      const p = ev.touches && ev.touches[0] ? ev.touches[0] : ev;
+      const x = p.clientX, y = p.clientY;
+      addMarker(x, y, false);
+      if (dc && dc.readyState === "open" && sendEnabled) {
+        const { nx, ny } = norm(x, y);
+        dc.send(JSON.stringify({ t: "mark", nx, ny }));
+      }
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("click", onTap, { passive: true });
+    window.addEventListener("touchstart", onTap, { passive: true });
+
+    wrap.querySelector("#btnPresenter").onclick = (e) => { e.preventDefault(); setPresenter(!presenterOn); };
+    wrap.querySelector("#btnClear").onclick = (e) => { e.preventDefault(); if (!presenterOn) setPresenter(true); clearMarkers(); };
+
+    // --- Remote panel toggle ---
+    function setPanel(on) {
+      remotePanelOn = !!on;
+      panel.style.display = remotePanelOn ? "block" : "none";
+      if (remotePanelOn) toast("Laser Remoto: apri pannello e collega (HOST/JOIN)");
+    }
+
+    function setStatus(text) { statusEl.textContent = "Stato: " + text; }
+
+    wrap.querySelector("#btnRemote").onclick = (e) => {
+      e.preventDefault();
+      setPanel(!remotePanelOn);
+    };
+    wrap.querySelector("#btnClosePanel").onclick = (e) => { e.preventDefault(); setPanel(false); };
+
+    wrap.querySelector("#btnCopyCode").onclick = async (e) => {
+      e.preventDefault();
+      const s = txt.value.trim();
+      if (!s) return toast("Niente da copiare");
+      const ok = await copy(s);
+      if (ok) toast("Copiato ✅ (incolla in chat)");
+      else prompt("Copia questo:", s);
+    };
+    wrap.querySelector("#btnClearCode").onclick = (e) => { e.preventDefault(); txt.value = ""; toast("Svuotato"); };
+
+    // --- WebRTC helpers ---
+    async function makePC() {
+      const _pc = new RTCPeerConnection({ iceServers: STUN });
+      _pc.oniceconnectionstatechange = () => {
+        const st = _pc.iceConnectionState;
+        if (st === "connected" || st === "completed") {
+          setStatus("CONNESSO ✅ (laser bidirezionale)");
+          remoteOn = true;
+          sendEnabled = true;
+          recvEnabled = true;
+          if (!presenterOn) setPresenter(true);
+          toast("Connesso ✅ Ora entrambi potete puntare e marcare.");
+        } else if (st === "disconnected" || st === "failed" || st === "closed") {
+          setStatus("OFF");
+          remoteOn = false; sendEnabled = false; recvEnabled = false;
+        } else {
+          setStatus(st);
+        }
+      };
+      _pc.ondatachannel = (ev) => {
+        dc = ev.channel;
+        bindDC();
+      };
+      return _pc;
+    }
+
+    function bindDC() {
+      if (!dc) return;
+      dc.onopen = () => { /* state handled by ice */ };
+      dc.onclose = () => { setStatus("OFF"); remoteOn = false; sendEnabled = false; recvEnabled = false; };
+      dc.onmessage = (ev) => {
+        if (!recvEnabled) return;
+        try {
+          const m = JSON.parse(ev.data);
+          if (m.t === "move") {
+            const { x, y } = denorm(m.nx, m.ny);
+            moveRemote(x, y);
+          } else if (m.t === "mark") {
+            const { x, y } = denorm(m.nx, m.ny);
+            addMarker(x, y, true);
+          } else if (m.t === "clear") {
+            [...layer.querySelectorAll(".sctMarker")].forEach(x => x.remove());
+            localN = 0; remoteN = 0;
+            toast("Marker puliti (remoto) 🧽");
+          }
+        } catch {}
+      };
+    }
+
+    async function waitIceGathering(_pc) {
+      if (_pc.iceGatheringState === "complete") return;
+      await new Promise((resolve) => {
+        const on = () => {
+          if (_pc.iceGatheringState === "complete") {
+            _pc.removeEventListener("icegatheringstatechange", on);
+            resolve();
+          }
+        };
+        _pc.addEventListener("icegatheringstatechange", on);
+      });
+    }
+
+    // HOST: crea offerta -> codice
+    async function hostCreateCode() {
+      pc?.close?.();
+      pc = await makePC();
+      dc = pc.createDataChannel("sct-pointer");
+      bindDC();
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await waitIceGathering(pc);
+
+      const payload = JSON.stringify(pc.localDescription);
+      txt.value = b64e(payload);
+      setStatus("HOST: invia questo codice all’altro");
+      toast("Codice HOST creato ✅ Copia e incolla in chat all’utente.");
+    }
+
+    // JOIN: incolla offerta -> crea risposta -> codice risposta
+    async function joinWithCode() {
+      const code = txt.value.trim();
+      if (!code) return toast("Incolla prima il codice HOST");
+      pc?.close?.();
+      pc = await makePC();
+
+      let desc;
+      try { desc = JSON.parse(b64d(code)); }
+      catch { return toast("Codice non valido"); }
+
+      await pc.setRemoteDescription(desc);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      await waitIceGathering(pc);
+
+      const payload = JSON.stringify(pc.localDescription);
+      txt.value = b64e(payload);
+      setStatus("JOIN: invia questa RISPOSTA all’HOST");
+      toast("Risposta creata ✅ Copia e rimanda all’HOST.");
+    }
+
+    // HOST: incolla risposta -> completa connessione
+    async function hostApplyAnswer() {
+      const code = txt.value.trim();
+      if (!pc) return toast("Prima fai CREA CODICE (HOST)");
+      if (!code) return toast("Incolla la risposta del JOIN");
+      let desc;
+      try { desc = JSON.parse(b64d(code)); }
+      catch { return toast("Risposta non valida"); }
+
+      await pc.setRemoteDescription(desc);
+      setStatus("Collegamento in corso…");
+      toast("Risposta applicata ✅ attendi connessione…");
+    }
+
+    function disconnect() {
+      try { dc?.close?.(); } catch {}
+      try { pc?.close?.(); } catch {}
+      dc = null; pc = null;
+      remoteOn = false; sendEnabled = false; recvEnabled = false;
+      setStatus("OFF");
+      toast("Disconnesso");
+    }
+
+    wrap.querySelector("#btnHost").onclick = (e) => { e.preventDefault(); hostCreateCode(); };
+    wrap.querySelector("#btnJoin").onclick = (e) => { e.preventDefault(); joinWithCode(); };
+    wrap.querySelector("#btnApplyAnswer").onclick = (e) => { e.preventDefault(); hostApplyAnswer(); };
+    wrap.querySelector("#btnDisconnect").onclick = (e) => { e.preventDefault(); disconnect(); };
+
+  })();
+})();

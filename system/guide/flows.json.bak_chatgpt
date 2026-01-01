@@ -1,0 +1,141 @@
+{
+  "hub": {
+    "it": {
+      "base": [
+        {
+          "sel": "a[href*='vetrine'], a[href*='vetrine.html']",
+          "say": "Passo 1. Tocca Vetrine per vedere le applicazioni."
+        },
+        {
+          "sel": "a[href*='control'], a[href*='control.html']",
+          "say": "Passo 2. Tocca Controllo per le funzioni del mini PC."
+        },
+        {
+          "sel": "a[href*='login'], a[href*='login.html']",
+          "say": "Passo 3. Tocca Login se devi entrare come amministratore."
+        }
+      ],
+      "note": [
+        {
+          "s": "Tasto Note e Copia.",
+          "lvl": "low"
+        },
+        {
+          "s": "Qui salvi appunti che restano in memoria. Utile per copiare e incollare testi anche dopo chiusura.",
+          "lvl": "low"
+        },
+        {
+          "s": "Doppio clic per aprire l’area Note e gestire i tuoi appunti.",
+          "lvl": "low"
+        }
+      ],
+      "media": [
+        {
+          "s": "Tasto File e Media.",
+          "lvl": "low"
+        },
+        {
+          "s": "Qui carichi e gestisci foto, video e documenti nel tuo mini-PC SerCucTech.",
+          "lvl": "low"
+        },
+        {
+          "s": "Doppio clic per aprire il File Manager e fare upload, download e organizzazione cartelle.",
+          "lvl": "low"
+        }
+      ],
+      "bios_pin": {
+        "title": "BIOS / PIN",
+        "speak_low": "Qui entri nelle impostazioni avanzate. Il PIN protegge le funzioni amministratore.",
+        "speak_high": "Sezione sicurezza: accesso avanzato e protezione admin tramite PIN e controlli."
+      }
+    },
+    "en": {
+      "base": [
+        {
+          "sel": "a[href*='vetrine'], a[href*='vetrine.html']",
+          "say": "Step 1. Tap Vetrine to see applications."
+        },
+        {
+          "sel": "a[href*='control'], a[href*='control.html']",
+          "say": "Step 2. Tap Control for mini PC features."
+        },
+        {
+          "sel": "a[href*='login'], a[href*='login.html']",
+          "say": "Step 3. Tap Login to enter as admin."
+        }
+      ],
+      "note": [
+        {
+          "s": "Notes & Copy button.",
+          "lvl": "low"
+        },
+        {
+          "s": "Save notes that stay in memory. Useful to copy/paste even after closing the app.",
+          "lvl": "low"
+        },
+        {
+          "s": "Double-tap to open the Notes area and manage your clips.",
+          "lvl": "low"
+        }
+      ],
+      "media": [
+        {
+          "s": "Files & Media button.",
+          "lvl": "low"
+        },
+        {
+          "s": "Upload and manage photos, videos, and documents inside your SerCucTech mini-PC.",
+          "lvl": "low"
+        },
+        {
+          "s": "Double-tap to open the File Manager for upload, download, and folders.",
+          "lvl": "low"
+        }
+      ]
+    },
+    "ua": {
+      "base": [
+        {
+          "sel": "a[href*='vetrine'], a[href*='vetrine.html']",
+          "say": "Крок 1. Натисни Вітрини, щоб побачити додатки."
+        },
+        {
+          "sel": "a[href*='control'], a[href*='control.html']",
+          "say": "Крок 2. Натисни Контроль для функцій міні ПК."
+        },
+        {
+          "sel": "a[href*='login'], a[href*='login.html']",
+          "say": "Крок 3. Натисни Вхід для адміністратора."
+        }
+      ],
+      "note": [
+        {
+          "s": "Кнопка Нотатки та Копіювання.",
+          "lvl": "low"
+        },
+        {
+          "s": "Тут зберігаються нотатки в пам’яті. Зручно копіювати/вставляти навіть після закриття.",
+          "lvl": "low"
+        },
+        {
+          "s": "Подвійний дотик — відкрити Нотатки і керувати записами.",
+          "lvl": "low"
+        }
+      ],
+      "media": [
+        {
+          "s": "Кнопка Файли та Медіа.",
+          "lvl": "low"
+        },
+        {
+          "s": "Тут можна завантажувати й керувати фото, відео та документами у SerCucTech mini-PC.",
+          "lvl": "low"
+        },
+        {
+          "s": "Подвійний дотик — відкрити Файловий менеджер для завантаження та папок.",
+          "lvl": "low"
+        }
+      ]
+    }
+  }
+}

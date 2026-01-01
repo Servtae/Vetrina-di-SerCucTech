@@ -1,0 +1,14 @@
+{
+  "it": {
+    "title": "Cos'è SerCucTech",
+    "text": "SerCucTech è un sistema digitale universale che trasforma uno smartphone in un Mini-PC e in un HUB personale. Puoi usarlo per gestire app e vetrine, archiviare file, creare backup, pubblicare contenuti, lavorare offline e online, e controllare tutto con una guida passo-passo. Il sistema può spiegarti cosa fare con voce, testo e indicatori numerati, adattandosi alla lingua del tuo dispositivo. È pensato per essere semplice anche per chi non è tecnico, ma potente abbastanza per creare servizi e progetti vendibili."
+  },
+  "en": {
+    "title": "What is SerCucTech",
+    "text": "SerCucTech is a universal digital system that turns a smartphone into a portable Mini-PC and a personal HUB. You can manage apps and showcases, store files, create backups, publish content, work offline and online, and control everything with step-by-step guidance. The system can explain actions using voice, text, and numbered highlights, adapting to your device language. It is designed to be easy for non-technical users, yet powerful enough to build sellable services and projects."
+  },
+  "ua": {
+    "title": "Що таке SerCucTech",
+    "text": "SerCucTech — це універсальна цифрова система, яка перетворює смартфон на портативний Mini-PC та особистий HUB. Ви можете керувати додатками й вітринами, зберігати файли, робити резервні копії, публікувати матеріали, працювати офлайн і онлайн, та керувати всім через покрокову допомогу. Система пояснює дії голосом, текстом і нумерованими підказками та підлаштовується під мову вашого пристрою. Вона проста для користувачів без технічного досвіду, але достатньо потужна для створення проєктів і сервісів."
+  }
+}
