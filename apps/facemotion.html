@@ -1,0 +1,973 @@
+SCT_OK_v1
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Face Overlay Video — SerCucTech (Pro)</title>
+  <style>
+    :root{--bg:#0b0d12;--card:#111524;--txt:#e9eefc;--mut:#a9b4d6;--bd:#243055;--btn:#1b2340}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(1200px 600px at 20% 0%, #182041 0%, var(--bg) 60%);color:var(--txt)}
+    header{padding:14px 14px 8px;max-width:1180px;margin:0 auto}
+    h1{font-size:18px;margin:0 0 6px}
+    .sub{color:var(--mut);font-size:13px;line-height:1.35}
+    .wrap{max-width:1180px;margin:0 auto;padding:10px 14px 20px;display:grid;grid-template-columns: 1.2fr .8fr;gap:14px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid var(--bd);border-radius:16px;padding:12px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label{font-size:13px;color:var(--mut)}
+    input[type="file"]{width:100%}
+    button{background:var(--btn);color:var(--txt);border:1px solid var(--bd);padding:10px 12px;border-radius:12px;cursor:pointer}
+    button.primary{background:#e9eefc;color:#0b0d12;border-color:#e9eefc}
+    button.small{padding:8px 10px;border-radius:10px;font-size:13px}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .hint{font-size:12px;color:var(--mut);margin-top:8px;line-height:1.35}
+    .stage{position:relative;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--bd)}
+    canvas{width:100%;height:100%;display:block}
+    .mini{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .faceBox{border:1px dashed rgba(233,238,252,.25);border-radius:14px;padding:10px}
+    .faceTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+    .faceTop b{font-size:13px}
+    .faceTop small{color:var(--mut)}
+    .sl{width:100%}
+    .kbd{font-size:12px;color:var(--mut);margin-top:10px;line-height:1.35}
+    .badge{display:inline-block;font-size:12px;color:#0b0d12;background:#e9eefc;padding:2px 8px;border-radius:999px}
+    .footer{max-width:1180px;margin:0 auto;padding:0 14px 18px;color:var(--mut);font-size:12px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .sep{height:1px;background:rgba(233,238,252,.10);margin:10px 0;border-radius:99px}
+    .toggle{display:flex;align-items:center;gap:8px}
+    .toggle input{transform:scale(1.2)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:rgba(233,238,252,.06);border:1px solid rgba(233,238,252,.12);padding:7px 10px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none}
+    .chip.active{background:#e9eefc;color:#0b0d12;border-color:#e9eefc}
+    /* Cropper modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:14px;z-index:50}
+    .modal.open{display:flex}
+    .modalCard{width:min(980px,100%);background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));border:1px solid var(--bd);border-radius:18px;overflow:hidden}
+    .modalHead{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(233,238,252,.12)}
+    .modalHead b{font-size:14px}
+    .modalBody{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;padding:12px}
+    .cropStage{background:#000;border:1px solid rgba(233,238,252,.12);border-radius:14px;overflow:hidden}
+    #cropCanvas{width:100%;height:100%;display:block}
+    .modalBtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;padding:10px 12px;border-top:1px solid rgba(233,238,252,.12)}
+  </style>
+</head>
+<body>
+<header>
+  <h1>Face Overlay Video — <span class="badge">offline</span> <span style="opacity:.75">Pro</span></h1>
+  <div class="sub">
+    Video + 5 facce “vive” con movimento realistico leggero. Facce tonde con bordo morbido.
+    Layout automatici + ritaglio facce da foto di gruppo.
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="stage" id="stage">
+      <canvas id="c"></canvas>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button id="btnPlay" class="primary" disabled>▶️ Play</button>
+      <button id="btnPause" disabled>⏸️ Pausa</button>
+      <button id="btnStop" disabled>⏹️ Stop</button>
+      <button id="btnFS">⛶ Schermo intero</button>
+      <span style="flex:1"></span>
+      <button id="btnRec" disabled>⏺️ Registra</button>
+      <button id="btnRecStop" disabled>⏹️ Ferma & Scarica</button>
+    </div>
+
+    <div class="grid2" style="margin-top:10px">
+      <div>
+        <label>Video (MP4/WebM)</label>
+        <input type="file" id="videoFile" accept="video/*">
+        <div class="hint">Se registri: meglio video non lunghissimo (dipende dal telefono).</div>
+      </div>
+      <div>
+        <label>Movimento realistico (A)</label>
+        <div class="row" style="margin-top:6px">
+          <label style="min-width:120px">Intensità</label>
+          <input class="sl" type="range" id="motion" min="0" max="100" value="35">
+        </div>
+        <div class="row" style="margin-top:6px">
+          <label style="min-width:120px">Zoom base</label>
+          <input class="sl" type="range" id="zoomBase" min="100" max="120" value="103">
+        </div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="row">
+      <div class="toggle">
+        <input type="checkbox" id="circleOn" checked>
+        <label for="circleOn">Facce tonde</label>
+      </div>
+      <div class="row" style="flex:1;min-width:260px">
+        <label style="min-width:120px">Bordo morbido</label>
+        <input class="sl" type="range" id="feather" min="0" max="30" value="14">
+      </div>
+      <div class="row" style="flex:1;min-width:260px">
+        <label style="min-width:120px">Ombra</label>
+        <input class="sl" type="range" id="shadow" min="0" max="30" value="10">
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div>
+      <label>Layout automatico</label>
+      <div class="chips" style="margin-top:8px">
+        <div class="chip active" data-layout="top">Sopra (riga)</div>
+        <div class="chip" data-layout="bottom">Sotto (riga)</div>
+        <div class="chip" data-layout="left">Sinistra (colonna)</div>
+        <div class="chip" data-layout="right">Destra (colonna)</div>
+        <div class="chip" data-layout="ring">Cerchio attorno</div>
+      </div>
+      <div class="hint">Dopo aver scelto il layout puoi comunque trascinare ogni faccia a mano.</div>
+    </div>
+
+    <div class="kbd">
+      Trascina una faccia per spostarla. Tap/click per selezionare.<br>
+      Suggerimento: se le vuoi più “televisive”, alza Intensità a ~55.
+    </div>
+
+    <video id="v" playsinline muted style="display:none"></video>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:700;margin-bottom:6px">Facce (5) + Ritaglio da gruppo</div>
+    <div class="hint">Carica facce singole oppure carica una foto di gruppo e ritaglia dentro l’app.</div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="small" id="btnReset">↺ Reset posizioni</button>
+      <button class="small" id="btnAutoTop">✨ Auto: sopra</button>
+      <button class="small" id="btnAutoRing">✨ Auto: cerchio</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div>
+      <label>Foto di gruppo (ritaglio interno)</label>
+      <input type="file" id="groupFile" accept="image/*">
+      <div class="row" style="margin-top:8px">
+        <button class="small" id="btnCrop1" disabled>Ritaglia → Faccia 1</button>
+        <button class="small" id="btnCrop2" disabled>Ritaglia → Faccia 2</button>
+        <button class="small" id="btnCrop3" disabled>Ritaglia → Faccia 3</button>
+        <button class="small" id="btnCrop4" disabled>Ritaglia → Faccia 4</button>
+        <button class="small" id="btnCrop5" disabled>Ritaglia → Faccia 5</button>
+      </div>
+      <div class="hint">Apri “Ritaglia → Faccia X”, sposta il riquadro sul volto, regola zoom, poi “Usa per Faccia X”.</div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="mini">
+      <div class="faceBox">
+        <div class="faceTop"><b>Faccia 1</b><small>slot</small></div>
+        <input type="file" id="f1" accept="image/*">
+        <label>Dimensione</label>
+        <input class="sl" type="range" id="s1" min="80" max="360" value="220">
+      </div>
+      <div class="faceBox">
+        <div class="faceTop"><b>Faccia 2</b><small>slot</small></div>
+        <input type="file" id="f2" accept="image/*">
+        <label>Dimensione</label>
+        <input class="sl" type="range" id="s2" min="80" max="360" value="220">
+      </div>
+      <div class="faceBox">
+        <div class="faceTop"><b>Faccia 3</b><small>slot</small></div>
+        <input type="file" id="f3" accept="image/*">
+        <label>Dimensione</label>
+        <input class="sl" type="range" id="s3" min="80" max="360" value="220">
+      </div>
+      <div class="faceBox">
+        <div class="faceTop"><b>Faccia 4</b><small>slot</small></div>
+        <input type="file" id="f4" accept="image/*">
+        <label>Dimensione</label>
+        <input class="sl" type="range" id="s4" min="80" max="360" value="220">
+      </div>
+      <div class="faceBox" style="grid-column:1 / span 2">
+        <div class="faceTop"><b>Faccia 5</b><small>slot</small></div>
+        <input type="file" id="f5" accept="image/*">
+        <label>Dimensione</label>
+        <input class="sl" type="range" id="s5" min="80" max="360" value="220">
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:10px">
+      Registrazione: output <b>WebM</b>. Se vuoi MP4 “finale”, dimmelo e ti do il comando ffmpeg unico per convertirlo.
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  SerCucTech • Offline • Facce tonde + feather • Cropper interno (manuale).
+</div>
+
+<!-- MODAL CROP -->
+<div class="modal" id="cropModal" aria-hidden="true">
+  <div class="modalCard">
+    <div class="modalHead">
+      <b id="cropTitle">Ritaglio</b>
+      <button class="small" id="cropClose">✖ Chiudi</button>
+    </div>
+    <div class="modalBody">
+      <div class="cropStage">
+        <canvas id="cropCanvas" width="1200" height="800"></canvas>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:8px">Controlli ritaglio</div>
+
+        <div class="row">
+          <label style="min-width:120px">Zoom immagine</label>
+          <input class="sl" type="range" id="cropZoom" min="50" max="250" value="100">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <label style="min-width:120px">Dimensione box</label>
+          <input class="sl" type="range" id="cropBox" min="120" max="700" value="360">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <label style="min-width:120px">Rotazione</label>
+          <input class="sl" type="range" id="cropRot" min="-20" max="20" value="0">
+        </div>
+
+        <div class="hint" style="margin-top:10px">
+          Trascina la foto per centrare il volto nel riquadro. Il riquadro resta fermo (più semplice su mobile).
+        </div>
+
+        <div class="sep"></div>
+
+        <div style="font-weight:700;margin-bottom:8px">Anteprima (tonda)</div>
+        <canvas id="previewCanvas" width="320" height="320" style="width:100%;max-width:320px;border-radius:14px;border:1px solid rgba(233,238,252,.12);background:#000"></canvas>
+      </div>
+    </div>
+    <div class="modalBtns">
+      <button class="small" id="cropCenter">🎯 Centra</button>
+      <button class="small" id="cropUse" class="primary">✅ Usa per Faccia</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ======= MAIN CANVAS =======
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const stage = document.getElementById('stage');
+
+  const video = document.getElementById('v');
+  const videoFile = document.getElementById('videoFile');
+
+  const btnPlay = document.getElementById('btnPlay');
+  const btnPause = document.getElementById('btnPause');
+  const btnStop = document.getElementById('btnStop');
+  const btnFS = document.getElementById('btnFS');
+  const btnRec = document.getElementById('btnRec');
+  const btnRecStop = document.getElementById('btnRecStop');
+  const btnReset = document.getElementById('btnReset');
+  const btnAutoTop = document.getElementById('btnAutoTop');
+  const btnAutoRing = document.getElementById('btnAutoRing');
+
+  const motion = document.getElementById('motion');
+  const zoomBase = document.getElementById('zoomBase');
+  const circleOn = document.getElementById('circleOn');
+  const feather = document.getElementById('feather');
+  const shadow = document.getElementById('shadow');
+
+  const faceInputs = [
+    {file: document.getElementById('f1'), size: document.getElementById('s1')},
+    {file: document.getElementById('f2'), size: document.getElementById('s2')},
+    {file: document.getElementById('f3'), size: document.getElementById('s3')},
+    {file: document.getElementById('f4'), size: document.getElementById('s4')},
+    {file: document.getElementById('f5'), size: document.getElementById('s5')}
+  ];
+
+  // State
+  let raf = null;
+  let t0 = performance.now();
+  let selected = -1;
+
+  const faces = Array.from({length: 5}, (_, i) => ({
+    img: null, ready: false,
+    x: 20 + i*240, y: 20,
+    size: 220,
+    phase: i * 0.9,
+    drag: false, dx: 0, dy: 0
+  }));
+
+  function resizeCanvasToStage() {
+    const r = stage.getBoundingClientRect();
+    const w = Math.max(2, Math.floor(r.width));
+    const h = Math.max(2, Math.floor(r.height));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+  }
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+  function drawCircleImage(img, x, y, w, h, featherPx, shadowPx){
+    // Feather via offscreen canvas mask (fast enough for 5 faces)
+    const off = document.createElement('canvas');
+    off.width = Math.max(2, Math.floor(w));
+    off.height = Math.max(2, Math.floor(h));
+    const o = off.getContext('2d');
+
+    // draw image to offscreen
+    o.drawImage(img, 0, 0, off.width, off.height);
+
+    // mask circle
+    o.globalCompositeOperation = 'destination-in';
+    o.beginPath();
+    o.arc(off.width/2, off.height/2, Math.min(off.width, off.height)/2, 0, Math.PI*2);
+    o.closePath();
+    o.fill();
+
+    // feather edge: draw radial alpha gradient on top of mask area
+    if (featherPx > 0){
+      o.globalCompositeOperation = 'destination-in';
+      const r = Math.min(off.width, off.height)/2;
+      const g = o.createRadialGradient(off.width/2, off.height/2, r - featherPx, off.width/2, off.height/2, r);
+      g.addColorStop(0, 'rgba(0,0,0,1)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      o.fillStyle = g;
+      o.beginPath();
+      o.arc(off.width/2, off.height/2, r, 0, Math.PI*2);
+      o.fill();
+    }
+
+    // draw to main with shadow
+    ctx.save();
+    if (shadowPx > 0){
+      ctx.shadowColor = "rgba(0,0,0,.55)";
+      ctx.shadowBlur = shadowPx;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+    }
+    ctx.drawImage(off, x, y, w, h);
+    ctx.restore();
+  }
+
+  function draw() {
+    resizeCanvasToStage();
+    const now = performance.now();
+    const t = (now - t0) / 1000;
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // video
+    if (video.readyState >= 2) {
+      const vw = video.videoWidth || 16;
+      const vh = video.videoHeight || 9;
+      const cw = canvas.width, ch = canvas.height;
+      const vr = vw / vh, cr = cw / ch;
+
+      let dw, dh, dx, dy;
+      if (cr > vr) {
+        dw = cw; dh = cw / vr; dx = 0; dy = (ch - dh) / 2;
+      } else {
+        dh = ch; dw = ch * vr; dy = 0; dx = (cw - dw) / 2;
+      }
+      ctx.drawImage(video, dx, dy, dw, dh);
+    }
+
+    const intensity = Number(motion.value) / 100; // 0..1
+    const zBase = Number(zoomBase.value) / 100;   // 1..1.2
+    const doCircle = !!circleOn.checked;
+    const featherPx = Number(feather.value);
+    const shadowPx = Number(shadow.value);
+
+    faces.forEach((f, i) => {
+      if (!f.ready) return;
+
+      const s = f.size;
+      const wobble = 2.5 * intensity;
+      const wobble2 = 1.8 * intensity;
+      const zx = zBase + (0.010 * intensity) * Math.sin(2*Math.PI*(0.55*t) + f.phase);
+      const zy = zBase + (0.008 * intensity) * Math.sin(2*Math.PI*(0.43*t) + f.phase + 1.2);
+
+      const ox = wobble * Math.sin(2*Math.PI*(0.37*t) + f.phase);
+      const oy = wobble2 * Math.sin(2*Math.PI*(0.29*t) + f.phase + 0.7);
+
+      const w = s * zx;
+      const h = s * zy;
+      const x = f.x + ox;
+      const y = f.y + oy;
+
+      ctx.save();
+      ctx.globalAlpha = 0.98;
+
+      if (doCircle) {
+        drawCircleImage(f.img, x, y, w, h, featherPx, shadowPx);
+      } else {
+        if (shadowPx > 0){
+          ctx.shadowColor = "rgba(0,0,0,.55)";
+          ctx.shadowBlur = shadowPx;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 2;
+        }
+        ctx.drawImage(f.img, x, y, w, h);
+      }
+
+      // selection border
+      if (selected === i) {
+        ctx.strokeStyle = "rgba(233,238,252,.95)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6,6]);
+        ctx.strokeRect(x-2, y-2, w+4, h+4);
+      } else {
+        ctx.strokeStyle = "rgba(233,238,252,.16)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4,7]);
+        ctx.strokeRect(x-1, y-1, w+2, h+2);
+      }
+      ctx.restore();
+    });
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  function stopLoop(){
+    if (raf) cancelAnimationFrame(raf);
+    raf = null;
+  }
+
+  function pickFaceAt(px, py) {
+    for (let i = faces.length-1; i >= 0; i--) {
+      const f = faces[i];
+      if (!f.ready) continue;
+      const s = f.size;
+      if (px >= f.x && px <= f.x + s && py >= f.y && py <= f.y + s) return i;
+    }
+    return -1;
+  }
+
+  function pointerPos(ev){
+    const r = canvas.getBoundingClientRect();
+    const x = (ev.clientX - r.left) * (canvas.width / r.width);
+    const y = (ev.clientY - r.top) * (canvas.height / r.height);
+    return {x,y};
+  }
+
+  // Drag
+  canvas.addEventListener('pointerdown', (ev) => {
+    canvas.setPointerCapture(ev.pointerId);
+    const {x,y} = pointerPos(ev);
+    const idx = pickFaceAt(x,y);
+    selected = idx;
+    if (idx >= 0) {
+      const f = faces[idx];
+      f.drag = true;
+      f.dx = x - f.x;
+      f.dy = y - f.y;
+    }
+  });
+  canvas.addEventListener('pointermove', (ev) => {
+    const {x,y} = pointerPos(ev);
+    if (selected >= 0) {
+      const f = faces[selected];
+      if (f.drag) {
+        f.x = clamp(x - f.dx, -80, canvas.width - 20);
+        f.y = clamp(y - f.dy, -80, canvas.height - 20);
+      }
+    }
+  });
+  canvas.addEventListener('pointerup', () => {
+    if (selected >= 0) faces[selected].drag = false;
+  });
+
+  // Load image from file
+  function loadImageFromFile(file, idx){
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); faces[idx].img = img; faces[idx].ready = true; resolve(); };
+      img.onerror = () => reject(new Error("Immagine non caricata"));
+      img.src = url;
+    });
+  }
+
+  // Face inputs
+  faceInputs.forEach((fi, idx) => {
+    fi.file.addEventListener('change', async () => {
+      const f = fi.file.files && fi.file.files[0];
+      if (!f) return;
+      try{ await loadImageFromFile(f, idx); enableIfReady(); } catch(e){ alert("Errore: " + e.message); }
+    });
+    fi.size.addEventListener('input', () => faces[idx].size = Number(fi.size.value));
+    faces[idx].size = Number(fi.size.value);
+  });
+
+  // Video load
+  videoFile.addEventListener('change', () => {
+    const f = videoFile.files && videoFile.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    video.src = url;
+    video.load();
+    video.onloadedmetadata = () => {
+      btnPlay.disabled = false;
+      btnPause.disabled = false;
+      btnStop.disabled = false;
+      video.muted = false;
+      video.volume = 1.0;
+      enableIfReady();
+    };
+  });
+
+  function enableIfReady(){
+    const hasVideo = !!video.src;
+    const readyFaces = faces.filter(f => f.ready).length;
+    btnRec.disabled = !(hasVideo && readyFaces > 0);
+  }
+
+  // Playback
+  btnPlay.addEventListener('click', async () => {
+    try{ if (!raf) draw(); await video.play(); }
+    catch(e){ alert("Play bloccato dal browser. Tocca Play di nuovo."); }
+  });
+  btnPause.addEventListener('click', () => video.pause());
+  btnStop.addEventListener('click', () => { video.pause(); video.currentTime = 0; });
+
+  // Fullscreen
+  btnFS.addEventListener('click', async () => {
+    try{
+      if (!document.fullscreenElement) await stage.requestFullscreen();
+      else await document.exitFullscreen();
+    }catch(e){ alert("Fullscreen non disponibile qui."); }
+  });
+
+  // ======= LAYOUTS =======
+  function layoutTop(){
+    const pad = 16;
+    const y = pad;
+    const w = canvas.width;
+    const gap = 12;
+    const base = Math.min(220, Math.floor((w - pad*2 - gap*4) / 5));
+    faces.forEach((f,i)=>{ f.size = base; faceInputs[i].size.value = base; f.x = pad + i*(base+gap); f.y = y; });
+  }
+  function layoutBottom(){
+    const pad = 16;
+    const gap = 12;
+    const w = canvas.width;
+    const base = Math.min(220, Math.floor((w - pad*2 - gap*4) / 5));
+    const y = canvas.height - pad - base;
+    faces.forEach((f,i)=>{ f.size = base; faceInputs[i].size.value = base; f.x = pad + i*(base+gap); f.y = y; });
+  }
+  function layoutLeft(){
+    const pad = 16;
+    const gap = 12;
+    const h = canvas.height;
+    const base = Math.min(200, Math.floor((h - pad*2 - gap*4) / 5));
+    faces.forEach((f,i)=>{ f.size = base; faceInputs[i].size.value = base; f.x = pad; f.y = pad + i*(base+gap); });
+  }
+  function layoutRight(){
+    const pad = 16;
+    const gap = 12;
+    const h = canvas.height;
+    const base = Math.min(200, Math.floor((h - pad*2 - gap*4) / 5));
+    const x = canvas.width - pad - base;
+    faces.forEach((f,i)=>{ f.size = base; faceInputs[i].size.value = base; f.x = x; f.y = pad + i*(base+gap); });
+  }
+  function layoutRing(){
+    const pad = 18;
+    const cx = canvas.width/2;
+    const cy = canvas.height/2;
+    const r = Math.min(canvas.width, canvas.height)/2 - pad - 110;
+    const base = Math.min(210, Math.max(140, Math.floor(Math.min(canvas.width, canvas.height)*0.18)));
+    faces.forEach((f,i)=>{
+      const a = (-Math.PI/2) + i*(2*Math.PI/5);
+      f.size = base; faceInputs[i].size.value = base;
+      f.x = cx + r*Math.cos(a) - base/2;
+      f.y = cy + r*Math.sin(a) - base/2;
+    });
+  }
+
+  function applyLayout(name){
+    resizeCanvasToStage();
+    if (name === 'top') layoutTop();
+    if (name === 'bottom') layoutBottom();
+    if (name === 'left') layoutLeft();
+    if (name === 'right') layoutRight();
+    if (name === 'ring') layoutRing();
+  }
+
+  // chips
+  document.querySelectorAll('.chip').forEach(ch => {
+    ch.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      ch.classList.add('active');
+      applyLayout(ch.dataset.layout);
+    });
+  });
+
+  btnReset.addEventListener('click', () => applyLayout('top'));
+  btnAutoTop.addEventListener('click', () => { setActiveChip('top'); applyLayout('top'); });
+  btnAutoRing.addEventListener('click', () => { setActiveChip('ring'); applyLayout('ring'); });
+
+  function setActiveChip(name){
+    document.querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x.dataset.layout === name));
+  }
+
+  // ======= RECORDING (canvas + audio) =======
+  let recorder = null, recChunks = [], recStream = null;
+
+  function getSupportedMime(){
+    const types = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=vp8',
+      'video/webm'
+    ];
+    return types.find(t => MediaRecorder.isTypeSupported(t)) || '';
+  }
+
+  btnRec.addEventListener('click', async () => {
+    if (!video.src) return;
+    if (!raf) draw();
+    if (video.paused && video.currentTime === 0) { try{ await video.play(); }catch{} }
+
+    const fps = 30;
+    const canvasStream = canvas.captureStream(fps);
+
+    let audioTrack = null;
+    try{
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const src = ac.createMediaElementSource(video);
+      const dest = ac.createMediaStreamDestination();
+      src.connect(dest);
+      src.connect(ac.destination);
+      audioTrack = dest.stream.getAudioTracks()[0] || null;
+    }catch(e){ audioTrack = null; }
+
+    recStream = new MediaStream([
+      ...canvasStream.getVideoTracks(),
+      ...(audioTrack ? [audioTrack] : [])
+    ]);
+
+    const mime = getSupportedMime();
+    try{ recorder = new MediaRecorder(recStream, mime ? { mimeType: mime } : undefined); }
+    catch(e){ alert("Registrazione non supportata su questo browser."); recorder=null; return; }
+
+    recChunks = [];
+    recorder.ondataavailable = (ev)=>{ if (ev.data && ev.data.size>0) recChunks.push(ev.data); };
+    recorder.onstop = ()=>{
+      const blob = new Blob(recChunks, { type: recorder.mimeType || 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'output_faces.webm';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1500);
+    };
+    recorder.start(200);
+
+    btnRec.disabled = true;
+    btnRecStop.disabled = false;
+    btnPlay.disabled = true;
+    btnPause.disabled = true;
+    btnStop.disabled = true;
+  });
+
+  btnRecStop.addEventListener('click', () => {
+    if (recorder && recorder.state !== 'inactive') recorder.stop();
+    btnRecStop.disabled = true;
+    btnRec.disabled = false;
+    btnPlay.disabled = false;
+    btnPause.disabled = false;
+    btnStop.disabled = false;
+  });
+
+  // ======= CROPPER (group photo) =======
+  const groupFile = document.getElementById('groupFile');
+  const btnCrop = [
+    document.getElementById('btnCrop1'),
+    document.getElementById('btnCrop2'),
+    document.getElementById('btnCrop3'),
+    document.getElementById('btnCrop4'),
+    document.getElementById('btnCrop5'),
+  ];
+
+  const cropModal = document.getElementById('cropModal');
+  const cropTitle = document.getElementById('cropTitle');
+  const cropClose = document.getElementById('cropClose');
+  const cropCanvas = document.getElementById('cropCanvas');
+  const cropCtx = cropCanvas.getContext('2d');
+  const previewCanvas = document.getElementById('previewCanvas');
+  const previewCtx = previewCanvas.getContext('2d');
+
+  const cropZoom = document.getElementById('cropZoom');
+  const cropBox = document.getElementById('cropBox');
+  const cropRot = document.getElementById('cropRot');
+  const cropCenter = document.getElementById('cropCenter');
+  const cropUse = document.getElementById('cropUse');
+
+  let groupImg = null;
+  let cropSlot = 0;
+
+  // Crop state: image transform (pan)
+  const cropState = {
+    panX: 0, panY: 0,
+    dragging: false,
+    dx: 0, dy: 0
+  };
+
+  function openCropper(slotIndex){
+    if (!groupImg) return;
+    cropSlot = slotIndex;
+    cropTitle.textContent = `Ritaglia dalla foto di gruppo → Faccia ${slotIndex+1}`;
+    cropUse.textContent = `✅ Usa per Faccia ${slotIndex+1}`;
+    cropModal.classList.add('open');
+    cropModal.setAttribute('aria-hidden', 'false');
+    centerCrop();
+    renderCropper();
+  }
+
+  function closeCropper(){
+    cropModal.classList.remove('open');
+    cropModal.setAttribute('aria-hidden', 'true');
+    cropState.dragging = false;
+  }
+
+  function centerCrop(){
+    cropState.panX = 0;
+    cropState.panY = 0;
+  }
+
+  function fitImageToCropCanvas(){
+    // keep canvas responsive: set internal size based on container
+    const parent = cropCanvas.parentElement.getBoundingClientRect();
+    const w = Math.max(2, Math.floor(parent.width));
+    const h = Math.max(2, Math.floor(parent.height));
+    if (cropCanvas.width !== w || cropCanvas.height !== h){
+      cropCanvas.width = w;
+      cropCanvas.height = h;
+    }
+  }
+
+  function renderCropper(){
+    if (!groupImg) return;
+    fitImageToCropCanvas();
+
+    const W = cropCanvas.width, H = cropCanvas.height;
+    cropCtx.clearRect(0,0,W,H);
+    cropCtx.fillStyle = "#000";
+    cropCtx.fillRect(0,0,W,H);
+
+    const z = Number(cropZoom.value)/100; // 0.5..2.5
+    const rot = Number(cropRot.value) * Math.PI/180;
+    const box = Number(cropBox.value);
+
+    // draw transformed image centered + pan
+    const cx = W/2 + cropState.panX;
+    const cy = H/2 + cropState.panY;
+
+    cropCtx.save();
+    cropCtx.translate(cx, cy);
+    cropCtx.rotate(rot);
+    cropCtx.scale(z, z);
+    cropCtx.translate(-groupImg.width/2, -groupImg.height/2);
+    cropCtx.drawImage(groupImg, 0, 0);
+    cropCtx.restore();
+
+    // overlay dark mask with clear square (box)
+    const bx = (W - box)/2;
+    const by = (H - box)/2;
+
+    cropCtx.save();
+    cropCtx.fillStyle = "rgba(0,0,0,.55)";
+    cropCtx.fillRect(0,0,W,H);
+    // clear center box
+    cropCtx.globalCompositeOperation = "destination-out";
+    cropCtx.fillRect(bx, by, box, box);
+    cropCtx.restore();
+
+    // draw box border + guides
+    cropCtx.save();
+    cropCtx.strokeStyle = "rgba(233,238,252,.9)";
+    cropCtx.lineWidth = 2;
+    cropCtx.strokeRect(bx, by, box, box);
+    cropCtx.strokeStyle = "rgba(233,238,252,.35)";
+    cropCtx.lineWidth = 1;
+    // rule of thirds
+    cropCtx.beginPath();
+    cropCtx.moveTo(bx + box/3, by); cropCtx.lineTo(bx + box/3, by + box);
+    cropCtx.moveTo(bx + 2*box/3, by); cropCtx.lineTo(bx + 2*box/3, by + box);
+    cropCtx.moveTo(bx, by + box/3); cropCtx.lineTo(bx + box, by + box/3);
+    cropCtx.moveTo(bx, by + 2*box/3); cropCtx.lineTo(bx + box, by + 2*box/3);
+    cropCtx.stroke();
+    cropCtx.restore();
+
+    renderPreview();
+  }
+
+  function renderPreview(){
+    if (!groupImg) return;
+    const z = Number(cropZoom.value)/100;
+    const rot = Number(cropRot.value) * Math.PI/180;
+    const box = Number(cropBox.value);
+
+    const W = cropCanvas.width, H = cropCanvas.height;
+    const bx = (W - box)/2;
+    const by = (H - box)/2;
+
+    // We need to "reverse" the transform to sample the crop area.
+    // Strategy: draw full transformed image to offscreen at cropCanvas size, then extract center box.
+    const off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    const o = off.getContext('2d');
+    o.fillStyle = "#000"; o.fillRect(0,0,W,H);
+
+    const cx = W/2 + cropState.panX;
+    const cy = H/2 + cropState.panY;
+
+    o.save();
+    o.translate(cx, cy);
+    o.rotate(rot);
+    o.scale(z, z);
+    o.translate(-groupImg.width/2, -groupImg.height/2);
+    o.drawImage(groupImg, 0, 0);
+    o.restore();
+
+    // crop the center box into a square 512x512
+    const out = document.createElement('canvas');
+    out.width = 512; out.height = 512;
+    const outc = out.getContext('2d');
+    outc.drawImage(off, bx, by, box, box, 0, 0, 512, 512);
+
+    // preview: circular with feather look
+    previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
+    previewCtx.fillStyle = "#000";
+    previewCtx.fillRect(0,0,previewCanvas.width, previewCanvas.height);
+
+    const pW = previewCanvas.width, pH = previewCanvas.height;
+    previewCtx.save();
+    // circle mask
+    previewCtx.beginPath();
+    previewCtx.arc(pW/2, pH/2, Math.min(pW,pH)/2 - 6, 0, Math.PI*2);
+    previewCtx.closePath();
+    previewCtx.clip();
+    previewCtx.drawImage(out, 0, 0, pW, pH);
+    previewCtx.restore();
+
+    // soft border
+    const f = 10;
+    const r = Math.min(pW,pH)/2 - 6;
+    const g = previewCtx.createRadialGradient(pW/2,pH/2, r - f, pW/2,pH/2, r);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(0,0,0,.35)");
+    previewCtx.fillStyle = g;
+    previewCtx.beginPath();
+    previewCtx.arc(pW/2,pH/2, r, 0, Math.PI*2);
+    previewCtx.fill();
+  }
+
+  function cropToFaceImage(){
+    // Use the same out 512x512 result as preview, then make an Image for face slot.
+    const z = Number(cropZoom.value)/100;
+    const rot = Number(cropRot.value) * Math.PI/180;
+    const box = Number(cropBox.value);
+
+    const W = cropCanvas.width, H = cropCanvas.height;
+    const bx = (W - box)/2;
+    const by = (H - box)/2;
+
+    const off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    const o = off.getContext('2d');
+
+    const cx = W/2 + cropState.panX;
+    const cy = H/2 + cropState.panY;
+
+    o.save();
+    o.translate(cx, cy);
+    o.rotate(rot);
+    o.scale(z, z);
+    o.translate(-groupImg.width/2, -groupImg.height/2);
+    o.drawImage(groupImg, 0, 0);
+    o.restore();
+
+    const out = document.createElement('canvas');
+    out.width = 512; out.height = 512;
+    out.getContext('2d').drawImage(off, bx, by, box, box, 0, 0, 512, 512);
+
+    const img = new Image();
+    img.src = out.toDataURL("image/png");
+    return new Promise((resolve) => {
+      img.onload = () => resolve(img);
+    });
+  }
+
+  // Cropper interactions: drag image (pan)
+  function cropPointerPos(ev){
+    const r = cropCanvas.getBoundingClientRect();
+    const x = (ev.clientX - r.left) * (cropCanvas.width / r.width);
+    const y = (ev.clientY - r.top) * (cropCanvas.height / r.height);
+    return {x,y};
+  }
+
+  cropCanvas.addEventListener('pointerdown', (ev) => {
+    cropCanvas.setPointerCapture(ev.pointerId);
+    const {x,y} = cropPointerPos(ev);
+    cropState.dragging = true;
+    cropState.dx = x - cropState.panX;
+    cropState.dy = y - cropState.panY;
+  });
+  cropCanvas.addEventListener('pointermove', (ev) => {
+    if (!cropState.dragging) return;
+    const {x,y} = cropPointerPos(ev);
+    cropState.panX = x - cropState.dx;
+    cropState.panY = y - cropState.dy;
+    renderCropper();
+  });
+  cropCanvas.addEventListener('pointerup', () => { cropState.dragging = false; });
+
+  // Cropper controls
+  [cropZoom, cropBox, cropRot].forEach(el => el.addEventListener('input', renderCropper));
+  cropCenter.addEventListener('click', () => { centerCrop(); renderCropper(); });
+
+  cropUse.addEventListener('click', async () => {
+    const img = await cropToFaceImage();
+    faces[cropSlot].img = img;
+    faces[cropSlot].ready = true;
+    enableIfReady();
+    closeCropper();
+  });
+
+  cropClose.addEventListener('click', closeCropper);
+  cropModal.addEventListener('click', (ev) => {
+    if (ev.target === cropModal) closeCropper();
+  });
+
+  // group image load
+  groupFile.addEventListener('change', () => {
+    const f = groupFile.files && groupFile.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      groupImg = img;
+      btnCrop.forEach((b,i)=>{ b.disabled = false; });
+      // quick open crop 1
+      // openCropper(0);
+    };
+    img.src = url;
+  });
+
+  btnCrop.forEach((b,i)=> b.addEventListener('click', ()=> openCropper(i)));
+
+  // ======= INIT =======
+  draw(); // keep canvas alive
+  // initial layout chip already "top"
+  applyLayout('top');
+
+})();
+</script>
+</body>
+</html>
