@@ -1,17 +1,15 @@
 <!doctype html>
 <html lang="it">
 <head>
-<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?cb=1767304881">
-<link rel="apple-touch-icon" sizes="167x167" href="./icons/apple-icon-167.png?cb=1767304881">
-<link rel="apple-touch-icon" sizes="152x152" href="./icons/apple-icon-152.png?cb=1767304881">
-<link rel="apple-touch-icon-precomposed" href="./icons/apple-touch-icon.png?cb=1767304881">
+<link rel="apple-touch-icon-precomposed" href="./icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="SerCucTech Mini-PC">
-
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="./icons/apple-icon-152.png">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title><span id="tapSER">SerCucTech</span> <span id="tapMINI">Mini</span>-<span id="tapPC">PC</span></title>
 
-  <link rel="manifest" href="./manifest.webmanifest?cb=1767304881">
+  <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#d4af37">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -205,35 +203,6 @@
         <span class="pill" id="pwa">PWA: …</span>
         <button class="btn gold" id="btnInstall" style="display:none">Installa</button>
         <button class="btn" id="btnRefresh">Aggiorna</button>
-<button id="btnResetCache" class="btn" style="margin-left:8px">Reset cache</button>
-<script>
-(async function(){
-  const b=document.getElementById("btnResetCache");
-  if(!b) return;
-  b.addEventListener("click", async ()=>{
-    try{
-      // Cancella cache SW
-      if("serviceWorker" in navigator){
-        const regs = await navigator.serviceWorker.getRegistrations();
-        for(const r of regs){ try{ await r.unregister(); }catch(e){} }
-      }
-      // Cancella CacheStorage
-      if("caches" in window){
-        const keys = await caches.keys();
-        await Promise.all(keys.map(k=>caches.delete(k)));
-      }
-      // Hard reload con cache-bust
-      const u = new URL(location.href);
-      u.searchParams.set("cb", String(Date.now()));
-      location.replace(u.toString());
-    }catch(e){
-      alert("Reset cache: errore. Ricarica manuale.");
-      location.reload();
-    }
-  });
-})();
-</script>
-
         <button class="btn" id="btnGuide">Spiegazioni: ON</button>
       </div>
     </header>

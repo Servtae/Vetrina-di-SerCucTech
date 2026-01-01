@@ -10,3 +10,4 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   return fetch(e.request);
 });
+/* ICON-CB 1767304881 */
