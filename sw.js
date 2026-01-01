@@ -75,3 +75,4 @@ self.addEventListener('fetch', (event) => {
   })());
 });
 /* icon-bump Thu Jan  1 11:48:03 CET 2026 */
+/* ASSET-BUMP Thu Jan  1 21:05:04 CET 2026 */
