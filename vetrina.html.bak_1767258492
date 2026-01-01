@@ -1,0 +1,481 @@
+SCT_OK_v1
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>SerCucTech — Le mie Vetrine</title>
+  <meta name="theme-color" content="#d4af37" />
+  <style>
+    :root{
+      --bg:#050505;
+      --panel:#0b0b0b;
+      --line: rgba(212,175,55,.28);
+      --gold:#d4af37;
+      --gold2:#ffde7a;
+      --txt:#f3f0e6;
+      --mut:#b8ad8c;
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(212,175,55,.12), transparent 55%),
+        radial-gradient(900px 600px at 120% 10%, rgba(255,222,122,.10), transparent 60%),
+        linear-gradient(180deg, #020202, #070707 40%, #030303);
+    }
+    .app{
+      min-height:100%;
+      display:grid;
+      grid-template-rows:auto auto 1fr auto;
+      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px;
+      gap:12px;
+      max-width:980px;
+      margin:0 auto;
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background: rgba(0,0,0,.35);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      padding:10px 12px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .brand{display:flex; align-items:center; gap:10px; min-width:0}
+    .logo{
+      width:40px; height:40px; border-radius:14px;
+      border:1px solid rgba(212,175,55,.35);
+      background: linear-gradient(180deg, rgba(212,175,55,.20), rgba(0,0,0,.25));
+      display:grid; place-items:center;
+      font-weight:900;
+      color:var(--gold2);
+      flex:0 0 auto;
+    }
+    .title{min-width:0}
+    .title h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      color:#000;
+      background: linear-gradient(180deg, rgba(255,222,122,.95), rgba(212,175,55,.85));
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.25);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width:60vw;
+    }
+    .topActions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      appearance:none; border:none; cursor:pointer;
+      padding:10px 14px; border-radius:14px;
+      background: rgba(0,0,0,.35);
+      border:1px solid var(--line);
+      color:var(--txt);
+      box-shadow: var(--shadow);
+      font-weight:800;
+    }
+    .btn.gold{
+      color:#000;
+      background: linear-gradient(180deg, rgba(255,222,122,.95), rgba(212,175,55,.85));
+      border:1px solid rgba(0,0,0,.25);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    .card{
+      background: rgba(0,0,0,.35);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding:12px;
+    }
+    .mut{color:var(--mut)}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color:var(--mut);
+      font-weight:700;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .list{display:grid; gap:10px; margin-top:10px}
+    .item{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:10px;
+      background: rgba(0,0,0,.25);
+    }
+    .item h3{margin:0 0 6px; font-size:14px}
+    .item .meta{font-size:12px; color:var(--mut); overflow-wrap:anywhere}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .linkBtn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.35);
+      color:var(--txt);
+      text-decoration:none;
+      font-weight:800;
+      min-width:86px;
+    }
+    .linkBtn.gold{
+      color:#000;
+      background: linear-gradient(180deg, rgba(255,222,122,.95), rgba(212,175,55,.85));
+      border:1px solid rgba(0,0,0,.25);
+    }
+    footer{
+      padding:10px 2px;
+      color:var(--mut);
+      font-size:12px;
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      opacity:.95;
+    }
+    .floating{
+      position:fixed;
+      right:14px;
+      bottom: calc(env(safe-area-inset-bottom) + 14px);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      z-index:50;
+    }
+    .fab{
+      width:54px; height:54px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.45);
+      box-shadow: var(--shadow);
+      color:var(--gold2);
+      font-size:22px;
+      display:grid; place-items:center;
+      cursor:pointer;
+    }
+    .fab.gold{
+      color:#000;
+      background: linear-gradient(180deg, rgba(255,222,122,.95), rgba(212,175,55,.85));
+      border:1px solid rgba(0,0,0,.25);
+    }
+    input[type="file"]{display:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo" title="SerCucTech">SC</div>
+        <div class="title">
+          <h1>Le mie Vetrine</h1>
+        </div>
+      </div>
+      <div class="topActions">
+        <a class="btn" href="../index.html" id="btnHub">← HUB</a>
+        <a class="btn" href="./vetrine.html" id="btnVetrine">← Vetrine</a>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="row">
+        <button class="btn gold" id="btnAdd">Aggiungi</button>
+        <button class="btn" id="btnShareAll">Condividi tutte</button>
+        <button class="btn" id="btnExport">Esporta</button>
+        <button class="btn gold" id="btnClear">Pulisci</button>
+      </div>
+      <p class="mut" id="stats" style="margin:10px 0 0">…</p>
+      <div class="list" id="list"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px">Come funziona (semplice)</h3>
+      <p class="mut" style="margin:0">
+        Se apri un link del tipo <span class="pill">vetrina.html?id=nomevetrina</span>,
+        la vetrina si salva automaticamente sul tuo dispositivo e la ritrovi qui.
+      </p>
+    </div>
+
+    <footer>
+      <div>SerCucTech • Vetrine su dispositivo (localStorage)</div>
+      <div class="mut" id="ver">v1</div>
+    </footer>
+  </div>
+
+  <div class="floating">
+    <button class="fab gold" id="fabContact" title="Contattami">☎</button>
+    <button class="fab" id="fabImport" title="Importa JSON">⤒</button>
+  </div>
+
+  <input id="fileImport" type="file" accept="application/json" />
+
+  <script>
+    const KEY = "SCT_MY_VETRINE_V1";
+
+    const CONTACT = {
+      phone: "+393208852858",
+      email: "sercuctech@gmail.com",
+      telegram: "sercuctech",
+      brand: "SerCucTech"
+    };
+
+    const $ = (s)=>document.querySelector(s);
+    const listEl = $("#list");
+    const statsEl = $("#stats");
+
+    function baseUrl(){
+      // repo pages: https://servtae.github.io/Vetrina-di-SerCucTech/
+      const p = location.pathname.split("/").filter(Boolean);
+      // se siamo in /Vetrina-di-SerCucTech/vetrina.html o /Vetrina-di-SerCucTech/
+      if (p.length >= 1) return location.origin + "/" + p[0] + "/";
+      return location.origin + "/";
+    }
+
+    function load(){
+      try{ return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+      catch(e){ return []; }
+    }
+
+    function save(arr){
+      localStorage.setItem(KEY, JSON.stringify(arr));
+    }
+
+    function dedup(arr){
+      const seen = new Set();
+      const out = [];
+      for (const v of arr){
+        const id = (v && v.id ? String(v.id).trim() : "");
+        if(!id) continue;
+        const k = id.toLowerCase();
+        if(seen.has(k)) continue;
+        seen.add(k);
+        out.push({
+          id,
+          title: (v.title ? String(v.title) : id),
+          note: (v.note ? String(v.note) : ""),
+          ts: v.ts || Date.now()
+        });
+      }
+      return out;
+    }
+
+    function makeLink(id){
+      return baseUrl() + "vetrina.html?id=" + encodeURIComponent(id);
+    }
+
+    async function shareText(text){
+      try{
+        if(navigator.share){
+          await navigator.share({ text });
+          return true;
+        }
+      }catch(e){}
+      try{
+        await navigator.clipboard.writeText(text);
+        alert("Copiato negli appunti ✅");
+        return true;
+      }catch(e){
+        prompt("Copia manualmente:", text);
+        return false;
+      }
+    }
+
+    function render(){
+      const arr = load();
+      statsEl.textContent = `${arr.length} vetrine salvate sul dispositivo`;
+      listEl.innerHTML = "";
+      if(arr.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "item";
+        empty.innerHTML = `
+          <h3>Nessuna vetrina salvata</h3>
+          <div class="meta">Premi <b>Aggiungi</b> oppure apri un link <b>?id=...</b> per salvarla automaticamente.</div>
+        `;
+        listEl.appendChild(empty);
+        return;
+      }
+
+      for(const v of arr){
+        const link = makeLink(v.id);
+        const wrap = document.createElement("div");
+        wrap.className = "item";
+        wrap.innerHTML = `
+          <h3>${escapeHtml(v.title || v.id)}</h3>
+          <div class="meta"><b>ID:</b> ${escapeHtml(v.id)}<br><b>Link:</b> ${escapeHtml(link)}${v.note ? `<br><b>Nota:</b> ${escapeHtml(v.note)}` : ""}</div>
+          <div class="actions">
+            <a class="linkBtn gold" href="${link}">Apri</a>
+            <button class="linkBtn" data-act="share" data-id="${escapeAttr(v.id)}">Condividi</button>
+            <button class="linkBtn" data-act="del" data-id="${escapeAttr(v.id)}">Elimina</button>
+          </div>
+        `;
+        listEl.appendChild(wrap);
+      }
+
+      listEl.querySelectorAll("button[data-act]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const act = btn.getAttribute("data-act");
+          const id = btn.getAttribute("data-id");
+          if(act === "share") shareOne(id);
+          if(act === "del") delOne(id);
+        });
+      });
+    }
+
+    function addOne(id, title, note){
+      id = String(id || "").trim();
+      if(!id) return false;
+      let arr = load();
+      arr.push({ id, title: title || id, note: note || "", ts: Date.now() });
+      arr = dedup(arr);
+      save(arr);
+      render();
+      return true;
+    }
+
+    function delOne(id){
+      if(!confirm("Eliminare questa vetrina dal dispositivo?")) return;
+      const arr = load().filter(v => String(v.id).toLowerCase() !== String(id).toLowerCase());
+      save(arr);
+      render();
+    }
+
+    async function shareOne(id){
+      const link = makeLink(id);
+      const text = `SerCucTech — Vetrina: ${id}\n${link}`;
+      await shareText(text);
+    }
+
+    async function shareAll(){
+      const arr = load();
+      if(arr.length === 0){ alert("Nessuna vetrina da condividere."); return; }
+      const lines = arr.map(v => `• ${v.id} — ${makeLink(v.id)}`);
+      const text = `SerCucTech — Elenco vetrine\n\n` + lines.join("\n");
+      await shareText(text);
+    }
+
+    function exportJSON(){
+      const arr = load();
+      const blob = new Blob([JSON.stringify(arr, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "sercuctech_myvetrine.json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    }
+
+    function importJSONFile(file){
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const data = JSON.parse(String(reader.result || "[]"));
+          const merged = dedup(load().concat(Array.isArray(data) ? data : []));
+          save(merged);
+          render();
+          alert("Import completato ✅");
+        }catch(e){
+          alert("File JSON non valido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function promptAdd(){
+      const urlOrId = prompt("Incolla ID vetrina (es. scalvini10) oppure un link completo con ?id=...");
+      if(!urlOrId) return;
+      const s = String(urlOrId).trim();
+      let id = s;
+      try{
+        if(s.startsWith("http")){
+          const u = new URL(s);
+          id = u.searchParams.get("id") || u.searchParams.get("v") || "";
+        } else if(s.includes("?")){
+          const u = new URL(s, location.href);
+          id = u.searchParams.get("id") || "";
+        }
+      }catch(e){}
+      id = String(id || "").trim();
+      if(!id){ alert("Non ho trovato l'ID nel link."); return; }
+      const ok = addOne(id, id, "");
+      if(ok) alert("Vetrina salvata ✅");
+    }
+
+    function clearAll(){
+      if(!confirm("Vuoi cancellare TUTTE le vetrine salvate su questo dispositivo?")) return;
+      localStorage.removeItem(KEY);
+      render();
+    }
+
+    function contactMe(){
+      const wa = "https://wa.me/" + CONTACT.phone.replace(/[^\d]/g,"");
+      const tg = "https://t.me/" + CONTACT.telegram.replace(/^@/,"");
+      const mail = "mailto:" + CONTACT.email;
+      const tel = "tel:" + CONTACT.phone;
+
+      const txt =
+`Contatti ${CONTACT.brand}
+
+Telefono: ${CONTACT.phone}
+Email: ${CONTACT.email}
+Telegram: @${CONTACT.telegram}
+
+Scegli dove contattarmi:`;
+
+      const choice = prompt(txt + "\n\n1=WhatsApp  2=Telegram  3=Email  4=Telefono", "1");
+      if(choice === "1") location.href = wa;
+      else if(choice === "2") location.href = tg;
+      else if(choice === "3") location.href = mail;
+      else if(choice === "4") location.href = tel;
+    }
+
+    // HTML escaping
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
+
+    // Auto-add from URL ?id=...
+    (function autoAddFromUrl(){
+      const sp = new URLSearchParams(location.search);
+      const id = (sp.get("id") || "").trim();
+      if(id){
+        addOne(id, id, "");
+        // pulisci url (così non si riaggiunge ad ogni refresh)
+        sp.delete("id");
+        const q = sp.toString();
+        const clean = location.pathname + (q ? ("?" + q) : "") + location.hash;
+        history.replaceState({}, "", clean);
+      }
+    })();
+
+    // Bind UI
+    $("#btnAdd").addEventListener("click", promptAdd);
+    $("#btnShareAll").addEventListener("click", shareAll);
+    $("#btnExport").addEventListener("click", exportJSON);
+    $("#btnClear").addEventListener("click", clearAll);
+
+    $("#fabContact").addEventListener("click", contactMe);
+
+    const fileEl = $("#fileImport");
+    $("#fabImport").addEventListener("click", ()=> fileEl.click());
+    fileEl.addEventListener("change", (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(f) importJSONFile(f);
+      fileEl.value = "";
+    });
+
+    render();
+  </script>
+</body>
+</html>
