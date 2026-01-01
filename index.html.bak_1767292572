@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="it">
 <head>
-<link rel="apple-touch-icon-precomposed" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon-precomposed" href="/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="SerCucTech Mini-PC">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="./icons/apple-icon-152.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152.png">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title><span id="tapSER">SerCucTech</span> <span id="tapMINI">Mini</span>-<span id="tapPC">PC</span></title>
 
-  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#d4af37">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -191,7 +191,7 @@
     <header>
       <div class="brand">
         <div class="logo" title="SerCucTech">
-          <img src="./icons/logo.png" alt="SerCucTech Logo">
+          <img src="/icons/logo.png" alt="SerCucTech Logo">
         </div>
         <div class="title">
           <h1>SERCUCTECH MINI-PC</h1>
@@ -212,63 +212,63 @@
 
         <section class="card">
           <div class="cardTop">
-            <div class="ico"><img src="./icons/phone.png" alt=""></div>
+            <div class="ico"><img src="/icons/phone.png" alt=""></div>
             <div>
               <h2 data-flow="hub">HUB</h2>
               <p>Home del sistema SerCucTech. Navigazione rapida.</p>
             </div>
           </div>
           <div class="go">
-            <a class="link" href="./index.html" data-guide="hub" aria-label="Apri HUB">Apri</a>
+            <a class="link" href="/index.html" data-guide="hub" aria-label="Apri HUB">Apri</a>
             <span class="kbd">/index.html</span>
           </div>
         </section>
 
         <section class="card">
           <div class="cardTop">
-            <div class="ico"><img src="./icons/user.png" alt=""></div>
+            <div class="ico"><img src="/icons/user.png" alt=""></div>
             <div>
               <h2>Control Center</h2>
               <p>Admin, remoto, sicurezza, stato server.</p>
             </div>
           </div>
           <div class="go">
-            <a class="link" href="./control.html" data-guide="control" aria-label="Apri Control">Apri</a>
+            <a class="link" href="/control.html" data-guide="control" aria-label="Apri Control">Apri</a>
             <span class="kbd">/control.html</span>
           </div>
         </section>
 
         <section class="card">
           <div class="cardTop">
-            <div class="ico"><img src="./icons/image.png" alt=""></div>
+            <div class="ico"><img src="/icons/image.png" alt=""></div>
             <div>
               <h2>Vetrine</h2>
               <p>Lista vetrine, app e progetti SerCucTech.</p>
             </div>
           </div>
           <div class="go">
-            <a class="link" href="./vetrine.html" data-guide="vetrine" aria-label="Apri Vetrine">Apri</a>
+            <a class="link" href="/vetrine.html" data-guide="vetrine" aria-label="Apri Vetrine">Apri</a>
             <span class="kbd">/vetrine.html</span>
           </div>
         </section>
 
         <section class="card">
           <div class="cardTop">
-            <div class="ico"><img src="./icons/ai.png" alt=""></div>
+            <div class="ico"><img src="/icons/ai.png" alt=""></div>
             <div>
               <h2>BIOS PIN</h2>
               <p>Chiave Master anti-hacker. Crea/cambia PIN.</p>
             </div>
           </div>
           <div class="go">
-            <a class="link" href="./bios.html" data-guide="bios" aria-label="Apri BIOS">Apri</a>
+            <a class="link" href="/bios.html" data-guide="bios" aria-label="Apri BIOS">Apri</a>
             <span class="kbd">/bios.html</span>
           </div>
         </section>
 
         <section class="card">
           <div class="cardTop">
-            <div class="ico"><img src="./icons/pen.png" alt=""></div>
+            <div class="ico"><img src="/icons/pen.png" alt=""></div>
             <div>
               <h2 data-flow="note">Note & Copia</h2>
 
@@ -279,7 +279,7 @@
             </div>
             <div class="cardBody">
               <p>Assistente intelligente offline</p>
-              <a class="link" href="./system/guide/universal.html" data-guide="chatgpt" data-keep-label="1" aria-label="Apri ChatGPT SerCucTech">Apri</a>
+              <a class="link" href="/system/guide/universal.html" data-guide="chatgpt" data-keep-label="1" aria-label="Apri ChatGPT SerCucTech">Apri</a>
             </div>
           </div>
 
@@ -287,21 +287,21 @@
             </div>
           </div>
           <div class="go">
-            <a class="link" href="./login.html" data-guide="note" aria-label="Apri Note e Copia">Apri</a>
+            <a class="link" href="/login.html" data-guide="note" aria-label="Apri Note e Copia">Apri</a>
             <span class="kbd">/login.html</span>
           </div>
         </section>
 
         <section class="card">
           <div class="cardTop">
-            <div class="ico"><img src="./icons/bell.png" alt=""></div>
+            <div class="ico"><img src="/icons/bell.png" alt=""></div>
             <div>
               <h2>File / Media</h2>
               <p>Upload, media e gestione file (step successivo).</p>
             </div>
           </div>
           <div class="go">
-            <a class="link" href="./media/" data-guide="media" aria-label="Apri File e Media">Apri</a>
+            <a class="link" href="/media/" data-guide="media" aria-label="Apri File e Media">Apri</a>
             <span class="kbd">/media/</span>
           </div>
         </section>
@@ -378,27 +378,27 @@
 
 <!-- iOS Quick Link -->
 <div style="max-width:980px;margin:12px auto 0 auto;padding:0 16px">
-  <a href="./system/ios.html" style="display:block;text-decoration:none;font-weight:1000;
+  <a href="/system/ios.html" style="display:block;text-decoration:none;font-weight:1000;
      border:1px solid rgba(202,165,74,.45);border-radius:22px;padding:14px 16px;
      background:rgba(0,0,0,.55);color:#ffd77a">
      Guida iPhone/iPad (Installazione PWA)
   </a>
 </div>
 
-<script src="./system/guide/ttsfix.js" defer></script>
+<script src="/system/guide/ttsfix.js" defer></script>
 <script>
 (function(){
 let s=0,t=0;
 function reset(){s=0;t=0;}
-function ok(){if(!t)t=Date.now();if(Date.now()-t>2500)reset();s++;if(s===3){location.href="./system/chatgpt.html";reset();}}
+function ok(){if(!t)t=Date.now();if(Date.now()-t>2500)reset();s++;if(s===3){location.href="/system/chatgpt.html";reset();}}
 tapSER.onclick=()=>{reset();ok()};
 tapMINI.onclick=()=>{if(s===1)ok();else reset()};
 tapPC.onclick=()=>{if(s===2)ok();else reset()};
 })();
 </script>
 
-  <script src="./system/guide/loader.js" defer></script>
-  <script src="./system/guide/doubletap.js" defer></script>
+  <script src="/system/guide/loader.js" defer></script>
+  <script src="/system/guide/doubletap.js" defer></script>
 </body>
 </html>
 
