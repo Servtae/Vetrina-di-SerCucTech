@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SerCucTech • Guida Universale</title>
+  <meta name="theme-color" content="#000000">
+  <style>
+    :root{
+      --bg:#000; --fg:#ffd77a; --mut:#9ad7c2; --line:#caa54a;
+      --card:#050505;
+    }
+    body{margin:0;font-family:system-ui;background:var(--bg);color:var(--fg)}
+    .wrap{max-width:920px;margin:0 auto;padding:16px}
+    .card{background:var(--card);border:1px solid #caa54a55;border-radius:16px;padding:14px}
+    h1{margin:0 0 6px;font-size:22px}
+    .mut{color:var(--mut);font-size:13px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    button,a.btn{
+      background:#111;color:var(--fg);border:1px solid var(--line);
+      border-radius:12px;padding:10px 12px;font-weight:900;text-decoration:none;
+    }
+    button:active{transform:scale(.99)}
+    .pill{display:inline-block;padding:4px 10px;border:1px solid #caa54a55;border-radius:999px;color:var(--mut);font-size:12px}
+    pre{white-space:pre-wrap;word-break:break-word;line-height:1.35;margin:0}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .link{color:#7fffd4;text-decoration:none;font-weight:900}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>🎧 Guida Universale SerCucTech</h1>
+        <div class="mut">Testo + audio (voce del dispositivo). Condivisione e download.</div>
+      </div>
+      <div class="row">
+        <a class="link" href="/index.html">← HUB</a>
+        <span class="pill" id="langPill">…</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between;gap:10px">
+        <div class="row">
+          <button id="play">▶️ Play</button>
+          <button id="pause">⏸ Pausa</button>
+          <button id="stop">⏹ Stop</button>
+        </div>
+        <div class="row">
+          <button id="copy">📋 Copia testo</button>
+          <button id="downloadTxt">⬇️ Scarica TXT</button>
+          <a class="btn" id="downloadMp3" href="#" style="opacity:.6;pointer-events:none">⬇️ Scarica MP3</a>
+          <button id="share">📤 Condividi</button>
+        </div>
+      </div>
+
+      <div class="mut" id="status" style="margin-top:10px">carico…</div>
+      <div style="margin-top:12px">
+        <div class="pill" id="titlePill">…</div>
+      </div>
+      <div class="card" style="margin-top:10px;border-color:#00ff9a33">
+        <pre id="text"></pre>
+      </div>
+
+      <div class="mut" style="margin-top:10px">
+        Nota: il pulsante MP3 si attiva dopo lo STEP 25 (generazione mp3 su Termux).
+      </div>
+    </div>
+  </div>
+
+<script>
+const getLang = ()=>{
+  const l=(navigator.language||"en").toLowerCase();
+  if(l.startsWith("it")) return "it";
+  if(l.startsWith("uk")||l.startsWith("ua")) return "ua";
+  return "en";
+};
+
+const LANG=getLang();
+document.documentElement.lang = LANG;
+document.getElementById("langPill").textContent = "Lingua: " + LANG.toUpperCase();
+
+let DATA=null;
+
+async function load(){
+  const r = await fetch("/system/guide/universal.json", {cache:"no-store"});
+  DATA = await r.json();
+  const block = DATA[LANG] || DATA["en"];
+  document.getElementById("titlePill").textContent = block.title || "SerCucTech";
+  document.getElementById("text").textContent = block.text || "";
+  document.getElementById("status").textContent = "pronto";
+}
+load().catch(e=>{
+  console.error(e);
+  document.getElementById("status").textContent = "errore caricamento";
+});
+
+function speak(text){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = (LANG==="ua") ? "uk-UA" : (LANG==="it" ? "it-IT" : "en-US");
+    speechSynthesis.speak(u);
+    document.getElementById("status").textContent="parlo…";
+    u.onend=()=>document.getElementById("status").textContent="pronto";
+  }catch(e){
+    document.getElementById("status").textContent="audio non disponibile";
+  }
+}
+
+document.getElementById("play").onclick=()=>{
+  const block = (DATA && (DATA[LANG]||DATA.en)) || {text:""};
+  speak(block.text || "");
+};
+document.getElementById("pause").onclick=()=>{
+  try{ speechSynthesis.pause(); document.getElementById("status").textContent="pausa"; }catch(e){}
+};
+document.getElementById("stop").onclick=()=>{
+  try{ speechSynthesis.cancel(); document.getElementById("status").textContent="stop"; }catch(e){}
+};
+
+document.getElementById("copy").onclick=async ()=>{
+  const txt=document.getElementById("text").textContent;
+  try{ await navigator.clipboard.writeText(txt); document.getElementById("status").textContent="copiato ✅"; }
+  catch(e){ document.getElementById("status").textContent="copia non permessa"; }
+};
+
+document.getElementById("downloadTxt").onclick=()=>{
+  const txt=document.getElementById("text").textContent;
+  const blob=new Blob([txt],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="sercuctech-universal-"+LANG+".txt";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+
+document.getElementById("share").onclick=async ()=>{
+  const url = location.origin + "/system/guide/universal.html";
+  try{
+    if(navigator.share){
+      await navigator.share({title:"SerCucTech • Guida Universale", text:"Guida universale SerCucTech", url});
+      document.getElementById("status").textContent="condiviso ✅";
+    }else{
+      await navigator.clipboard.writeText(url);
+      document.getElementById("status").textContent="link copiato ✅";
+    }
+  }catch(e){
+    document.getElementById("status").textContent="condivisione annullata";
+  }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>SerCucTech • iPhone/iPad</title>
+  <meta name="theme-color" content="#000000" />
+  <style>
+    :root{
+      --bg:#070707; --card:#0b0b0b; --gold:#caa54a; --gold2:#ffd77a;
+      --line:rgba(202,165,74,.45); --text:#eae6da; --mut:#b9b3a2;
+      --shadow: 0 10px 30px rgba(0,0,0,.55); --r:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(202,165,74,.18), transparent 60%),
+        radial-gradient(900px 600px at 110% 10%, rgba(255,215,122,.10), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px;
+      max-width:980px; margin:0 auto;
+    }
+    header{
+      margin-top:10px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      padding:14px 16px;border:1px solid var(--line);border-radius:28px;
+      background: rgba(0,0,0,.55); box-shadow:var(--shadow);
+      position:sticky;top:10px;z-index:9;
+    }
+    .badge{font-weight:1000;color:var(--gold2);letter-spacing:.6px}
+    a.btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:12px 16px;border-radius:18px;border:1px solid var(--line);
+      background:rgba(0,0,0,.55);color:var(--gold2);
+      text-decoration:none;font-weight:1000;
+    }
+    .card{
+      margin-top:14px;
+      background: linear-gradient(180deg, rgba(255,215,122,.08), rgba(0,0,0,.55));
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    h1{margin:0;font-size:20px;color:var(--gold2)}
+    h2{margin:0 0 10px 0;font-size:16px;color:var(--gold2)}
+    p{margin:0;color:var(--mut);line-height:1.35}
+    .step{
+      display:flex; gap:12px; align-items:flex-start;
+      padding:12px 0; border-top:1px solid rgba(202,165,74,.22);
+    }
+    .step:first-of-type{border-top:none}
+    .n{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.6);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:1000;color:var(--gold2);flex:0 0 auto;
+    }
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;color:var(--text)}
+    .tip{margin-top:10px;padding:12px;border-radius:16px;border:1px solid rgba(202,165,74,.25);background:rgba(0,0,0,.4)}
+    .ok{color:#98ffbf}
+  </style>
+<script src="/system/guide/loader.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="badge"> iPhone / iPad • Installazione PWA</div>
+  <a class="btn" href="/index.html">← HUB</a>
+</header>
+
+<section class="card">
+  <h1>Come installare SerCucTech HUB su iPhone/iPad</h1>
+  <p style="margin-top:8px">Questa guida è fatta “facile facile”. Ti basta seguire i numeri.</p>
+
+  <div class="step">
+    <div class="n">1</div>
+    <div>
+      <h2>Apri con Safari</h2>
+      <p>Su iPhone/iPad usa <b>Safari</b> (non altre app) e apri:</p>
+      <p class="mono">https://hub.sercuctech.net</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">2</div>
+    <div>
+      <h2>Ricarica una volta</h2>
+      <p>Fai un refresh (per prendere gli ultimi aggiornamenti).</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">3</div>
+    <div>
+      <h2>Condividi</h2>
+      <p>Tocca il pulsante <b>Condividi</b> (quello con la freccia).</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">4</div>
+    <div>
+      <h2>Aggiungi a Home</h2>
+      <p>Scorri e scegli <b>“Aggiungi a Home”</b>.</p>
+      <p>Vedrai l’icona SerCucTech ✅</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">5</div>
+    <div>
+      <h2>Apri dall’icona</h2>
+      <p>Ora apri l’app dalla Home: funziona in modalità <span class="ok"><b>standalone</b></span>.</p>
+    </div>
+  </div>
+
+  <div class="tip">
+    <b>Se non si aggiorna:</b>
+    <p>Su iOS a volte resta “incollato”. Soluzione semplice:</p>
+    <p>1) elimina l’icona dalla Home</p>
+    <p>2) riapri in Safari</p>
+    <p>3) fai refresh</p>
+    <p>4) aggiungi di nuovo a Home</p>
+  </div>
+</section>
+
+  <script src="/system/guide/doubletap.js" defer></script>
+</body>
+</html>
