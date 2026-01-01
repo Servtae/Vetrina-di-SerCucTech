@@ -103,14 +103,14 @@
       text-align:center;
     }
   </style>
-<script src="/system/guide/loader.js" defer></script>
+<script src="system/guide/loader.js" defer></script>
 </head>
 <body>
   <div class="wrap">
 
     <div class="top">
       <div class="badge">🛡️ SerCucTech • Control Center</div>
-      <a class="btnTop" href="/index.html">← HUB</a>
+      <a class="btnTop" href="index.html">← HUB</a>
     </div>
 
     <div class="grid">
@@ -170,12 +170,12 @@
     rem.className  = ok ? "ok" : "bad";
   }
 
-  document.getElementById("btnBios").onclick = () => location.href="/bios.html";
+  document.getElementById("btnBios").onclick = () => location.href="bios.html";
 
   document.getElementById("btnRemote").onclick = () => {
     if(!isUnlocked()){
       alert("BIOS BLOCCATO.\nPrima sblocca il BIOS/PIN Master.");
-      location.href="/bios.html";
+      location.href="bios.html";
       return;
     }
     // pagina remota del tuo progetto
@@ -193,11 +193,11 @@
     localStorage.setItem(KEY,"0");
     refresh();
     alert("ACCESSO REMOTO DISATTIVATO.\nSistema riportato in modalità locale.");
-    location.href="/index.html";
+    location.href="index.html";
   };
 
   refresh();
 </script>
-  <script src="/system/guide/doubletap.js" defer></script>
+  <script src="system/guide/doubletap.js" defer></script>
 </body>
 </html>

@@ -350,7 +350,7 @@
   (async () => {
     try{
       if ("serviceWorker" in navigator){
-        const reg = await navigator.serviceWorker.register("/sw.js");
+        const reg = await navigator.serviceWorker.register("sw.js");
         ver.textContent = "SW: " + (reg.active ? "ON" : "install…");
       } else {
         ver.textContent = "SW: n/a";
