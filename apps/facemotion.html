@@ -115,6 +115,10 @@ SCT_OK_v1
         <label style="min-width:120px">Ombra</label>
         <input class="sl" type="range" id="shadow" min="0" max="30" value="10">
       </div>
+            <div class="row" style="margin-top:6px">
+              <label style="min-width:120px">Anti-alone</label>
+              <input class="sl" type="range" id="dehalo" min="0" max="30" value="10">
+            </div>
     </div>
 
     <div class="sep"></div>
@@ -279,7 +283,8 @@ SCT_OK_v1
   const feather = document.getElementById('feather');
   const shadow = document.getElementById('shadow');
 
-  const faceInputs = [
+    const dehalo = document.getElementById('dehalo');
+const faceInputs = [
     {file: document.getElementById('f1'), size: document.getElementById('s1')},
     {file: document.getElementById('f2'), size: document.getElementById('s2')},
     {file: document.getElementById('f3'), size: document.getElementById('s3')},
@@ -321,7 +326,26 @@ SCT_OK_v1
     // draw image to offscreen
     o.drawImage(img, 0, 0, off.width, off.height);
 
-    // mask circle
+    
+
+    // Anti-alone: riduce bordi chiari residui
+    if(dehaloPx && dehaloPx>0){
+      try{
+        const id = o.getImageData(0,0,off.width,off.height);
+        const d = id.data;
+        const k = Math.min(0.85, dehaloPx/35);
+        for(let i=0;i<d.length;i+=4){
+          const r=d[i], g=d[i+1], b=d[i+2];
+          if(r>235 && g>235 && b>235){
+            d[i]   = Math.round(r*(1-k));
+            d[i+1] = Math.round(g*(1-k));
+            d[i+2] = Math.round(b*(1-k));
+          }
+        }
+        o.putImageData(id,0,0);
+      }catch(e){}
+    }
+// mask circle
     o.globalCompositeOperation = 'destination-in';
     o.beginPath();
     o.arc(off.width/2, off.height/2, Math.min(off.width, off.height)/2, 0, Math.PI*2);
@@ -383,7 +407,8 @@ SCT_OK_v1
     const featherPx = Number(feather.value);
     const shadowPx = Number(shadow.value);
 
-    faces.forEach((f, i) => {
+        const dehaloPx = (typeof dehalo !== 'undefined' && dehalo) ? Number(dehalo.value) : 0;
+faces.forEach((f, i) => {
       if (!f.ready) return;
 
       const s = f.size;
